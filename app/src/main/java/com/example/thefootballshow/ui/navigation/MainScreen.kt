@@ -32,10 +32,7 @@ import androidx.navigation.compose.rememberNavController
 @Composable
 fun MainScreen() {
     val navController = rememberNavController()
-    Scaffold(containerColor = Color.Transparent,
-        bottomBar = {
-            BottomBar(navController = navController)
-        }) {
+    Scaffold(containerColor = Color.Transparent) {
         Box(Modifier.padding(it)) {
             BottomNavGraph(navController = navController)
         }

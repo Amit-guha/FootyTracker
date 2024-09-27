@@ -7,7 +7,7 @@ sealed class BottomBarScreen(
     val title: String,
     val icon: Int
 ) {
-     data object PremierLeagueScreen :
+    data object PremierLeagueScreen :
         BottomBarScreen("PL", "EPL", R.drawable.premier)
 
     data object SerieAScreen :
@@ -16,9 +16,11 @@ sealed class BottomBarScreen(
     data object BundesligaScreen :
         BottomBarScreen("Bundesliga", "BUNDESLIGA", R.drawable.bundeshi)
 
-    data object LaligaScreen : BottomBarScreen("LALIGA","Laliga",R.drawable.laliga_logotipo_1)
-}
+    data object LaligaScreen : BottomBarScreen("LALIGA", "Laliga", R.drawable.laliga_logotipo_1)
 
+    data object PremierLeagueUpcomingMatchDetail : BottomBarScreen
+        ("PL_UPCOMING_MATCH_DETAIL", "PL_UPCOMING_MATCH_DETAIL", R.drawable.premier)
+}
 
 
 //PL - Premier league

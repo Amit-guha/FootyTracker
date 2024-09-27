@@ -2,6 +2,7 @@ package com.example.thefootballshow.ui.premierleaguescreenroute
 
 import android.util.Log
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -50,13 +51,17 @@ import com.example.thefootballshow.utils.extension.toFriendlyDate
 @Composable
 fun PremierLeagueScreenRoute(
     modifier: Modifier = Modifier,
-    premierLeagueViewModel: PremierLeagueViewModel = hiltViewModel()
+    premierLeagueViewModel: PremierLeagueViewModel = hiltViewModel(),
+    onItemClick: () -> Unit
 ) {
 
     val matchUiState: UiState<List<Matche>> by premierLeagueViewModel.matchUiState.collectAsStateWithLifecycle()
     premierLeagueViewModel.getUpcomingMatches()
 
-    Log.d("PremierLeagueScreenRoute", "PremierLeagueScreenRoute: ${"2023-02-05T20:00:00Z".toFriendlyDate()}")
+    Log.d(
+        "PremierLeagueScreenRoute",
+        "PremierLeagueScreenRoute: ${"2023-02-05T20:00:00Z".toFriendlyDate()}"
+    )
 
     Column(modifier = modifier.fillMaxSize()) {
         SetLeagueTitleText(leagueTitle = "Premier League")
@@ -69,7 +74,9 @@ fun PremierLeagueScreenRoute(
             SeeAllText {}
         }
         Spacer(modifier = modifier.height(5.dp))
-        UpcomingMatchListScreen(matchUiState)
+        UpcomingMatchListScreen(matchUiState){
+            onItemClick()
+        }
 
     }
 
@@ -77,7 +84,7 @@ fun PremierLeagueScreenRoute(
 
 
 @Composable
-fun UpcomingMatchListScreen(matchUiState: UiState<List<Matche>>) {
+fun UpcomingMatchListScreen(matchUiState: UiState<List<Matche>>,onItemClick: () -> Unit) {
     when (matchUiState) {
         is UiState.Error -> {}
         UiState.Loading -> {
@@ -85,18 +92,23 @@ fun UpcomingMatchListScreen(matchUiState: UiState<List<Matche>>) {
         }
 
         is UiState.Success -> {
-            UpcomingMatchList(matchUiState.data)
+            UpcomingMatchList(matchUiState.data){
+                onItemClick()
+            }
         }
-        else ->{}
+
+        else -> {}
     }
 }
 
 
 @Composable
-fun UpcomingMatchList(data: List<Matche>) {
+fun UpcomingMatchList(data: List<Matche>,onItemClick:() -> Unit) {
     LazyColumn(modifier = Modifier.padding(bottom = 20.dp)) {
         items(data) {
-            FullCard(data = it)
+            FullCard(data = it){
+                onItemClick()
+            }
         }
     }
 
@@ -106,11 +118,16 @@ fun UpcomingMatchList(data: List<Matche>) {
 //https://dribbble.com/shots/22396996-Balbalan-Live-Score-Football-App
 
 @Composable
-fun FullCard(modifier: Modifier = Modifier, data: Matche) {
+fun FullCard(modifier: Modifier = Modifier, data: Matche,onClick :() ->Unit) {
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .padding(start = 10.dp, end = 10.dp, top = 15.dp), shape = RoundedCornerShape(10.dp),
+            .padding(start = 10.dp, end = 10.dp, top = 15.dp)
+            .clickable {
+                onClick()
+                Log.d("FullCard", "FullCard: ${data.utcDate}")
+            }, shape = RoundedCornerShape(10.dp),
+
         elevation = CardDefaults.cardElevation(1.dp),
         colors = CardDefaults.cardColors(Color.White)
     ) {
@@ -188,11 +205,11 @@ fun CardImage(modifier: Modifier = Modifier, url: String) {
     ) {
         AsyncImage(
             model = if (url.contains("svg")) {
-                    ImageRequest.Builder(context)
-                        .data(url)
-                        .decoderFactory(SvgDecoder.Factory())
-                        .build()
-                } else {
+                ImageRequest.Builder(context)
+                    .data(url)
+                    .decoderFactory(SvgDecoder.Factory())
+                    .build()
+            } else {
                 url
             },
             modifier = modifier
@@ -217,7 +234,7 @@ fun ClubTextName(modifier: Modifier = Modifier, teamName: String) {
 }
 
 @Composable
-fun DayTextName(modifier: Modifier = Modifier,dayDescription : String) {
+fun DayTextName(modifier: Modifier = Modifier, dayDescription: String) {
     Text(
         text = dayDescription.ifEmpty { "" },
         modifier = modifier,
@@ -229,7 +246,7 @@ fun DayTextName(modifier: Modifier = Modifier,dayDescription : String) {
 }
 
 @Composable
-fun TimeTextName(modifier: Modifier = Modifier,time : String) {
+fun TimeTextName(modifier: Modifier = Modifier, time: String) {
     Text(
         text = time.ifEmpty { "" },
         modifier = modifier,
@@ -245,7 +262,9 @@ fun TimeTextName(modifier: Modifier = Modifier,time : String) {
 @Preview(showSystemUi = true)
 @Composable
 private fun ShowLaligaScreenRoute() {
-    PremierLeagueScreenRoute()
+    PremierLeagueScreenRoute {
+
+    }
 }
 
 //{{url}}/v4/teams/81/matches?status=FINISHED&season=2023 -- last 5 matches

@@ -30,7 +30,8 @@ class PremierLeagueViewModel @Inject constructor(
         viewModelScope.launch(dispatcherProvider.main) {
             //2021 -->PL
             //2014 -->Laliga
-            repository.getUpcomingMatches(year = 2014, status = MatchStatus.SCHEDULED.title)
+            //2018 -->euro
+            repository.getUpcomingMatches(year = 2021, status = MatchStatus.SCHEDULED.title)
                 .flowOn(dispatcherProvider.io)
                 .catch { e ->
                     _matchUiState.value = UiState.Error(e.toString())
