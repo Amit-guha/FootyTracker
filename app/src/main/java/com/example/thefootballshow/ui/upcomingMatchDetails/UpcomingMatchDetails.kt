@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -41,6 +42,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -54,6 +56,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.thefootballshow.R
+import com.example.thefootballshow.utils.enumUtills.FixturesEnum
 import com.example.thefootballshow.utils.enumUtills.TeamStatEnum
 
 
@@ -96,22 +99,102 @@ fun CenterAlignedTopAppBarExample(homeTeam: String, awayTeam: String, onClick: (
             CompetitionBetweenTeamsTimeInfo()
 
             //Maintain an Enum of H2H, Table, Lineups
-            TeamStatus(onClickH2H = {
-
-            }, onClickTable = {
-
-            }, onClickLineUps = {
-
-            }
-
-            )
+            TeamStatus(onClickH2H = {},
+                onClickTable = {},
+                onClickLineUps = {})
 
             LastFiveGames()
-            CompetitionInfo()
-            // CompetitionSpinner()
+            CompetitionInfo(onAllCallback = {},
+                onHomeCallback = {},
+                onAwayCallback = {}
+            )
+            TeamStatLazyColumn()
+
 
         }
 
+    }
+}
+
+
+@Composable
+fun TeamStatLazyColumn(modifier: Modifier = Modifier) {
+    LazyColumn(modifier = modifier.padding(top = 20.dp)) {
+        items(5) {
+            RecentTeamVsTeamStat()
+        }
+    }
+}
+
+
+@Composable
+fun RecentTeamVsTeamStat(modifier: Modifier = Modifier) {
+    Row(modifier = modifier) {
+        TeamVsTeamResultInfo(0.4f, Arrangement.Center)
+        TeamVsTeamDrawingRect(0.2f)
+        TeamVsTeamResultInfo(0.4f, Arrangement.Center)
+    }
+
+}
+
+@Composable
+fun RowScope.TeamVsTeamDrawingRect(weight: Float) {
+    Row(
+        Modifier.weight(weight),
+        horizontalArrangement = Arrangement.Center,
+    ) {
+        Box(
+            Modifier
+                .padding(start = 5.dp)
+                .size(15.dp, 15.dp)
+                .background(color = Color.Green, shape = RectangleShape)
+        )
+
+        Box(
+            Modifier
+                .padding(start = 5.dp)
+                .size(15.dp, 15.dp)
+                .background(color = Color.DarkGray, shape = RectangleShape)
+        )
+    }
+
+}
+
+@Composable
+fun RowScope.TeamVsTeamResultInfo(
+    weight: Float,
+    horizontalArrangement: Arrangement.HorizontalOrVertical
+) {
+    Row(
+        Modifier.weight(weight),
+        horizontalArrangement = horizontalArrangement
+    ) {
+        Text(
+            "MCI",
+            style = TextStyle(
+                fontSize = 18.sp,
+                color = Color.Red,
+                fontWeight = FontWeight.Medium
+            )
+        )
+
+        Text(
+            "1 - 0",
+            Modifier.padding(start = 5.dp),
+            style = TextStyle(
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Medium
+            )
+        )
+
+        Text(
+            "CHE",
+            Modifier.padding(start = 5.dp),
+            style = TextStyle(
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Medium
+            )
+        )
     }
 }
 
@@ -128,7 +211,12 @@ fun LastFiveGames(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun CompetitionInfo() {
+fun CompetitionInfo(
+    selectedItem: FixturesEnum = FixturesEnum.ALL,
+    onAllCallback: () -> Unit,
+    onHomeCallback: () -> Unit,
+    onAwayCallback: () -> Unit
+) {
     Row(
         Modifier.padding(start = 20.dp, top = 10.dp),
         horizontalArrangement = Arrangement.Center,
@@ -147,6 +235,7 @@ fun CompetitionInfo() {
                 style = TextStyle(
                     textAlign = TextAlign.Center,
                     fontSize = 15.sp,
+                    color = if (selectedItem == FixturesEnum.ALL) Color.Blue else Color.DarkGray
                 )
             )
             Text(
@@ -156,7 +245,8 @@ fun CompetitionInfo() {
                     .align(Alignment.CenterVertically),
                 style = TextStyle(
                     textAlign = TextAlign.Center,
-                    fontSize = 15.sp
+                    fontSize = 15.sp,
+                    color = if (selectedItem == FixturesEnum.HOME) Color.Blue else Color.DarkGray
                 )
             )
             Text(
@@ -164,7 +254,8 @@ fun CompetitionInfo() {
                 modifier = Modifier.weight(0.1f),
                 style = TextStyle(
                     textAlign = TextAlign.Center,
-                    fontSize = 15.sp
+                    fontSize = 15.sp,
+                    color = if (selectedItem == FixturesEnum.AWAY) Color.Blue else Color.DarkGray
                 )
             )
         }
@@ -179,10 +270,11 @@ fun CompetitionSpinner() {
     var expanded by remember { mutableStateOf(false) }
     var selectedItem by remember { mutableStateOf(listOfItems[0]) }
 
-    Row(modifier = Modifier
-        .clickable {
-            expanded = !expanded
-        }, verticalAlignment = Alignment.CenterVertically
+    Row(
+        modifier = Modifier
+            .clickable {
+                expanded = !expanded
+            }, verticalAlignment = Alignment.CenterVertically
     ) {
         Text(text = selectedItem)
         Image(painter = painterResource(R.drawable.arrow_drop_down), contentDescription = "Spinner")
