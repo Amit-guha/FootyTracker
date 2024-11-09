@@ -6,6 +6,7 @@
     <string name = "table">Table</string>
     <string name = "lineups">LINE-UPS</string>
     <string name = "lastFiveGames">LAST 5 GAMES</string>
+    <string name = "league_table">LEAGUE TABLE</string>
     <string name="all">All</string>
     <string name="home">HOME</string>
     <string name="away">AWAY</string>

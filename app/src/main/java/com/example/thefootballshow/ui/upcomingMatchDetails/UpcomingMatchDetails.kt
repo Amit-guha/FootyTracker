@@ -4,6 +4,7 @@ import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,6 +17,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -41,8 +43,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Paint
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -103,16 +111,334 @@ fun CenterAlignedTopAppBarExample(homeTeam: String, awayTeam: String, onClick: (
                 onClickTable = {},
                 onClickLineUps = {})
 
-            LastFiveGames()
+            LeagueHeadLine(text = stringResource(R.string.lastFiveGames))
             CompetitionInfo(onAllCallback = {},
                 onHomeCallback = {},
                 onAwayCallback = {}
             )
-            TeamStatLazyColumn()
+            // TeamStatLazyColumn()
+            // LeagueHeadLine(text = stringResource(R.string.league_table))
+            // LeagueTableSeasonSpinner()
+            // LeagueTable()
+            DrawFootballField()
 
 
         }
 
+    }
+}
+
+@Composable
+fun DrawFootballField(modifier: Modifier = Modifier) {
+    androidx.compose.foundation.Canvas(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(10.dp)
+    ) {
+        val canvasWidth = size.width
+        val canvasHeight = size.height
+        val height = 800f
+
+        //draw Path
+        drawRect(
+            color = Color.DarkGray,
+            topLeft = Offset(0f, 0f),
+            size = Size(canvasWidth, height),
+            style = Stroke(4.dp.toPx())
+        )
+        val path = Path().apply {
+            // Start from a point
+            moveTo(0f, 0f)
+            lineTo(canvasWidth/2 + 120f, 0f)
+            lineTo(canvasWidth/2 + 180f, 100f)
+            lineTo(canvasWidth/2 + 120f, 200f)
+            lineTo(canvasWidth/2 + 180f, 300f)
+            lineTo(canvasWidth/2 + 120f, 400f)
+            lineTo(canvasWidth/2 + 180f, 500f)
+            lineTo(canvasWidth/2 + 120f, 600f)
+            lineTo(canvasWidth/2 + 180f, 700f)
+            lineTo(canvasWidth/2 + 120f, 800f)
+            lineTo(0f, height)
+            // close()
+        }
+        drawPath(
+            path = path,
+            color = Color.LightGray // Background color up to the path
+        )
+
+        drawPath(
+            path = path,
+            color = Color.Blue,
+            style = Stroke(width = 2.dp.toPx()) // Set the stroke width
+        )
+
+
+
+        val yLeftStart = 150f
+        //if we start from 100f then we also stop from same padding before full height
+        //800, 100f, 800f + 100f = 900 - 2*100f = 700
+        drawRect(
+            color = Color.DarkGray,
+            topLeft = Offset(0f, yLeftStart),
+            size = Size(220f, height - 2 * yLeftStart),
+            style = Stroke(2.dp.toPx())
+        )
+
+        //0 Degree means = 3'0 Clock
+        //90 Degree means = 6'0 Clock
+        //180 Degree means = 9'0 Clock
+        //270 Degree means = 12'0 Clock
+        //-180 Degree means = 12'0 Counter Clock
+
+
+        drawArc(
+            color = Color.DarkGray,
+            startAngle = 270f,
+            sweepAngle = 180f,
+            useCenter = false,
+            style = Stroke(2.dp.toPx()),
+            topLeft = Offset(140f, 300f),
+            size = Size(150f, 150f),
+        )
+
+        val smallYLeftStart = 250f
+        val smallRectWidth = 120f
+        val largeRectHeight = 200f
+        drawRect(
+            color = Color.DarkGray,
+            topLeft = Offset(0f, smallYLeftStart),
+            size = Size(smallRectWidth, height - 2 * smallYLeftStart),
+            style = Stroke(2.dp.toPx())
+        )
+
+        //Draw Circle at Centre
+        drawCircle(
+            color = Color.DarkGray,
+            radius = 100f,
+            center = Offset(canvasWidth / 2, height / 2),
+            style = Stroke(2.dp.toPx())
+        )
+
+        //Draw Line at Centre
+        drawLine(
+            color = Color.DarkGray,
+            start = Offset(canvasWidth / 2, 0f),
+            end = Offset(canvasWidth / 2, height),
+            strokeWidth = 2.dp.toPx()
+        )
+
+        //Draw Text at centre
+        val text = "MCI"
+        val textPaint = Paint().asFrameworkPaint().apply {
+            isAntiAlias = true
+            textSize = 40f
+            textAlign = android.graphics.Paint.Align.CENTER
+        }
+
+        // Measure the text's width and height for the background size
+        val textWidth = textPaint.measureText(text)
+        val textHeight = textPaint.fontMetrics.run { descent - ascent }
+        val padding = 16f
+
+        drawRect(
+            color = Color.Yellow, // Background color for the text
+            topLeft = Offset(
+                canvasWidth / 2 - padding,
+                height / 2 + textPaint.fontMetrics.ascent - padding
+            ),
+            size = Size(textWidth + 1.5f * padding, textHeight + 1.5f * padding)
+        )
+
+        drawContext.canvas.nativeCanvas.drawText(
+            text,
+            canvasWidth / 2 + 30f,
+            height / 2,
+            textPaint
+        )
+
+        val text2 = "Attack"
+        val text2Width = textPaint.measureText(text2)
+        val text2Height = textPaint.fontMetrics.run { descent - ascent }
+
+        val y2 = height / 2 + textHeight + padding
+        drawContext.canvas.nativeCanvas.drawText(
+            text2,
+            canvasWidth / 2 - 5f,
+            y2,
+            textPaint
+        )
+
+        drawRect(
+            color = Color.DarkGray,
+            topLeft = Offset(canvasWidth - 220f, yLeftStart),
+            size = Size(220f, height - 2 * yLeftStart),
+            style = Stroke(2.dp.toPx())
+        )
+
+        drawRect(
+            color = Color.DarkGray,
+            topLeft = Offset(canvasWidth - smallRectWidth, smallYLeftStart),
+            size = Size(smallRectWidth, height - 2 * smallYLeftStart),
+            style = Stroke(2.dp.toPx())
+        )
+
+        drawArc(
+            color = Color.DarkGray,
+            startAngle = 90f,
+            sweepAngle = 180f,
+            useCenter = false,
+            style = Stroke(2.dp.toPx()),
+            topLeft = Offset(canvasWidth - 290f, 300f),
+            size = Size(150f, 150f),
+        )
+
+
+    }
+
+}
+
+
+@Composable
+fun LeagueTable(modifier: Modifier = Modifier) {
+    LazyColumn(modifier.horizontalScroll(rememberScrollState())) {
+        items(5) {
+            LeagueTableItem()
+        }
+    }
+}
+
+@Composable
+fun LeagueTableItem(modifier: Modifier = Modifier) {
+    Row(
+        modifier = Modifier
+            .padding(top = 10.dp, start = 20.dp)
+    ) {
+        Text(
+            "Position",
+            overflow = TextOverflow.Ellipsis,
+            maxLines = 1,
+            style = TextStyle(
+                fontSize = 18.sp,
+                color = Color.DarkGray
+            )
+        )
+
+        Text(
+            "Team",
+            modifier = modifier
+                .padding(start = 10.dp)
+                .align(Alignment.CenterVertically),
+            overflow = TextOverflow.Ellipsis,
+            maxLines = 1,
+            style = TextStyle(
+                fontSize = 18.sp,
+                color = Color.DarkGray
+            )
+        )
+
+        Text(
+            "MP",
+            overflow = TextOverflow.Ellipsis,
+            maxLines = 1,
+            modifier = modifier
+                .padding(start = 10.dp)
+                .align(Alignment.CenterVertically),
+            style = TextStyle(
+                fontSize = 18.sp,
+                color = Color.DarkGray
+            )
+        )
+
+        Text(
+            "W",
+            overflow = TextOverflow.Ellipsis,
+            maxLines = 1,
+            modifier = modifier
+                .padding(start = 10.dp)
+                .align(Alignment.CenterVertically),
+            style = TextStyle(
+                fontSize = 18.sp,
+                color = Color.DarkGray
+            )
+        )
+
+        Text(
+            "D",
+            overflow = TextOverflow.Ellipsis,
+            maxLines = 1,
+            modifier = modifier
+                .padding(start = 10.dp)
+                .align(Alignment.CenterVertically),
+            style = TextStyle(
+                fontSize = 18.sp,
+                color = Color.DarkGray
+            )
+        )
+
+        Text(
+            "L",
+            overflow = TextOverflow.Ellipsis,
+            maxLines = 1,
+            modifier = modifier
+                .padding(start = 10.dp)
+                .align(Alignment.CenterVertically),
+            style = TextStyle(
+                fontSize = 18.sp,
+                color = Color.DarkGray
+            )
+        )
+
+        Text(
+            "GF",
+            overflow = TextOverflow.Ellipsis,
+            maxLines = 1,
+            modifier = modifier
+                .padding(start = 10.dp)
+                .align(Alignment.CenterVertically),
+            style = TextStyle(
+                fontSize = 18.sp,
+                color = Color.DarkGray
+            )
+        )
+
+        Text(
+            "GA",
+            overflow = TextOverflow.Ellipsis,
+            maxLines = 1,
+            modifier = modifier
+                .padding(start = 10.dp)
+                .align(Alignment.CenterVertically),
+            style = TextStyle(
+                fontSize = 18.sp,
+                color = Color.DarkGray
+            )
+        )
+
+        Text(
+            "GD",
+            overflow = TextOverflow.Ellipsis,
+            maxLines = 1,
+            modifier = modifier
+                .padding(start = 10.dp)
+                .align(Alignment.CenterVertically),
+            style = TextStyle(
+                fontSize = 18.sp,
+                color = Color.DarkGray
+            )
+        )
+
+        Text(
+            "Pts",
+            overflow = TextOverflow.Ellipsis,
+            maxLines = 1,
+            modifier = modifier
+                .padding(start = 10.dp)
+                .align(Alignment.CenterVertically),
+            style = TextStyle(
+                fontSize = 18.sp,
+                color = Color.DarkGray
+            )
+        )
     }
 }
 
@@ -129,7 +455,10 @@ fun TeamStatLazyColumn(modifier: Modifier = Modifier) {
 
 @Composable
 fun RecentTeamVsTeamStat(modifier: Modifier = Modifier) {
-    Row(modifier = modifier) {
+    Row(
+        modifier = modifier
+            .padding(bottom = 5.dp)
+    ) {
         TeamVsTeamResultInfo(0.4f, Arrangement.Center)
         TeamVsTeamDrawingRect(0.2f)
         TeamVsTeamResultInfo(0.4f, Arrangement.Center)
@@ -199,10 +528,13 @@ fun RowScope.TeamVsTeamResultInfo(
 }
 
 @Composable
-fun LastFiveGames(modifier: Modifier = Modifier) {
+fun LeagueHeadLine(
+    modifier: Modifier = Modifier,
+    text: String
+) {
     Text(
         modifier = modifier.padding(start = 20.dp, top = 20.dp),
-        text = stringResource(R.string.lastFiveGames),
+        text = text,
         style = TextStyle(
             textAlign = TextAlign.Center,
             fontSize = 18.sp
@@ -272,6 +604,49 @@ fun CompetitionSpinner() {
 
     Row(
         modifier = Modifier
+            .clickable {
+                expanded = !expanded
+            }, verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(text = selectedItem)
+        Image(painter = painterResource(R.drawable.arrow_drop_down), contentDescription = "Spinner")
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = {
+                expanded = false
+            }
+        ) {
+            listOfItems.forEach {
+                DropdownMenuItem(
+                    text = { Text(text = it) },
+                    onClick = {
+                        expanded = false
+                        selectedItem = it
+                    }
+                )
+            }
+
+        }
+
+    }
+
+}
+
+@Composable
+fun LeagueTableSeasonSpinner(modifier: Modifier = Modifier) {
+    val listOfItems = listOf(
+        "SEASON 2024/25",
+        "SEASON 2023/24",
+        "SEASON 2022/23",
+        "SEASON 2021/22",
+        "SEASON 2019/20"
+    )
+    var expanded by remember { mutableStateOf(false) }
+    var selectedItem by remember { mutableStateOf(listOfItems[0]) }
+
+    Row(
+        modifier = Modifier
+            .padding(start = 20.dp)
             .clickable {
                 expanded = !expanded
             }, verticalAlignment = Alignment.CenterVertically
