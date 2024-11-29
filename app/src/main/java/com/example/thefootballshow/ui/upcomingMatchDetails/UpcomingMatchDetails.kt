@@ -70,6 +70,12 @@ import com.example.thefootballshow.utils.enumUtills.FixturesEnum
 import com.example.thefootballshow.utils.enumUtills.TeamStatEnum
 
 
+//{{url}}/v4/matches/497520 -- match details before game
+//{{url}}/v4/teams/57/matches?status=FINISHED&season=2024&competitions&limit=5  -- last 5 match details
+//{{url}}/v4/competitions/PL/standings?season=2024  -- premier league table
+//{{url}}/v4/matches/497526/head2head?limit=5 -- head to head matches
+
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CenterAlignedTopAppBarExample(homeTeam: String, awayTeam: String, onClick: () -> Unit) {

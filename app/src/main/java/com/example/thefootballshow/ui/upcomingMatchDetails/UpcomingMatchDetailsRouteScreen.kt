@@ -5,8 +5,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 
 @Composable
-fun UpcomingMatchDetailRouteScreen(modifier: Modifier = Modifier) {
-    CenterAlignedTopAppBarExample("Chelsea", "Arsenal"){
+fun UpcomingMatchDetailRouteScreen(
+    modifier: Modifier = Modifier,
+    competitionId: Int,
+    homeTeamId: Int,
+    awayTeamId: Int,
+) {
+    CenterAlignedTopAppBarExample("Chelsea", "Arsenal") {
 
     }
 }
@@ -14,5 +19,7 @@ fun UpcomingMatchDetailRouteScreen(modifier: Modifier = Modifier) {
 @Composable
 @Preview
 private fun ShowUpcomingMatchDetailRouteScreen() {
-    UpcomingMatchDetailRouteScreen()
-}
+    UpcomingMatchDetailRouteScreen(competitionId = 1, homeTeamId = 1, awayTeamId = 1)
+
+
+    }

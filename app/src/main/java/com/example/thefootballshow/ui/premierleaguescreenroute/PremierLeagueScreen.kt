@@ -52,7 +52,7 @@ import com.example.thefootballshow.utils.extension.toFriendlyDate
 fun PremierLeagueScreenRoute(
     modifier: Modifier = Modifier,
     premierLeagueViewModel: PremierLeagueViewModel = hiltViewModel(),
-    onItemClick: () -> Unit
+    onItemClick: (Int,Int,Int) -> Unit
 ) {
 
     val matchUiState: UiState<List<Matche>> by premierLeagueViewModel.matchUiState.collectAsStateWithLifecycle()
@@ -74,9 +74,9 @@ fun PremierLeagueScreenRoute(
             SeeAllText {}
         }
         Spacer(modifier = modifier.height(5.dp))
-        UpcomingMatchListScreen(matchUiState){
-            onItemClick()
-        }
+        UpcomingMatchListScreen(matchUiState,onItemClick = { competitionId, homeTeamId, awayTeamId ->
+            onItemClick(competitionId,homeTeamId,awayTeamId)
+        })
 
     }
 
@@ -84,7 +84,7 @@ fun PremierLeagueScreenRoute(
 
 
 @Composable
-fun UpcomingMatchListScreen(matchUiState: UiState<List<Matche>>,onItemClick: () -> Unit) {
+fun UpcomingMatchListScreen(matchUiState: UiState<List<Matche>>,onItemClick: (Int,Int,Int) -> Unit) {
     when (matchUiState) {
         is UiState.Error -> {}
         UiState.Loading -> {
@@ -92,9 +92,9 @@ fun UpcomingMatchListScreen(matchUiState: UiState<List<Matche>>,onItemClick: () 
         }
 
         is UiState.Success -> {
-            UpcomingMatchList(matchUiState.data){
-                onItemClick()
-            }
+            UpcomingMatchList(matchUiState.data, onItemClick = { competitionId, homeTeamId, awayTeamId ->
+                onItemClick(competitionId,homeTeamId,awayTeamId)
+            })
         }
 
         else -> {}
@@ -103,12 +103,12 @@ fun UpcomingMatchListScreen(matchUiState: UiState<List<Matche>>,onItemClick: () 
 
 
 @Composable
-fun UpcomingMatchList(data: List<Matche>,onItemClick:() -> Unit) {
+fun UpcomingMatchList(data: List<Matche>,onItemClick:(Int,Int,Int) -> Unit) {
     LazyColumn(modifier = Modifier.padding(bottom = 20.dp)) {
         items(data) {
-            FullCard(data = it){
-                onItemClick()
-            }
+            FullCard(data = it, onClick = {competitionId, homeTeamId, awayTeamId ->
+                onItemClick(competitionId,homeTeamId,awayTeamId)
+            })
         }
     }
 
@@ -118,13 +118,13 @@ fun UpcomingMatchList(data: List<Matche>,onItemClick:() -> Unit) {
 //https://dribbble.com/shots/22396996-Balbalan-Live-Score-Football-App
 
 @Composable
-fun FullCard(modifier: Modifier = Modifier, data: Matche,onClick :() ->Unit) {
+fun FullCard(modifier: Modifier = Modifier, data: Matche,onClick :(Int,Int,Int) ->Unit) {
     Card(
         modifier = modifier
             .fillMaxWidth()
             .padding(start = 10.dp, end = 10.dp, top = 15.dp)
             .clickable {
-                onClick()
+                onClick(data.id,data.homeTeam.id,data.awayTeam.id)
                 Log.d("FullCard", "FullCard: ${data.utcDate}")
             }, shape = RoundedCornerShape(10.dp),
 
@@ -262,9 +262,9 @@ fun TimeTextName(modifier: Modifier = Modifier, time: String) {
 @Preview(showSystemUi = true)
 @Composable
 private fun ShowLaligaScreenRoute() {
-    PremierLeagueScreenRoute {
-
-    }
+    PremierLeagueScreenRoute(onItemClick = {
+            _, _, _ ->
+    })
 }
 
 //{{url}}/v4/teams/81/matches?status=FINISHED&season=2023 -- last 5 matches
