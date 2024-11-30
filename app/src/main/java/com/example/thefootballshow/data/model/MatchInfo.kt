@@ -1,6 +1,6 @@
 package com.example.thefootballshow.data.model
 
-data class Matche(
+data class MatchInfo(
     val area: Area,
     val awayTeam: AwayTeam,
     val competition: Competition,

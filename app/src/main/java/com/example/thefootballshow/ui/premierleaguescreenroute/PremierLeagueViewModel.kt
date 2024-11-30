@@ -2,7 +2,7 @@ package com.example.thefootballshow.ui.premierleaguescreenroute
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.thefootballshow.data.model.Matche
+import com.example.thefootballshow.data.model.MatchInfo
 import com.example.thefootballshow.data.repository.PremierLeagueRepository
 import com.example.thefootballshow.ui.base.UiState
 import com.example.thefootballshow.utils.DispatcherProvider
@@ -23,8 +23,8 @@ class PremierLeagueViewModel @Inject constructor(
     private val dispatcherProvider: DispatcherProvider,
 ) : ViewModel() {
 
-    private val _matchUiState = MutableStateFlow<UiState<List<Matche>>>(UiState.Loading)
-    val matchUiState: StateFlow<UiState<List<Matche>>> = _matchUiState
+    private val _matchUiState = MutableStateFlow<UiState<List<MatchInfo>>>(UiState.Loading)
+    val matchUiState: StateFlow<UiState<List<MatchInfo>>> = _matchUiState
 
     fun getUpcomingMatches() {
         viewModelScope.launch(dispatcherProvider.main) {

@@ -1,5 +1,6 @@
 package com.example.thefootballshow.data.Api
 
+import com.example.thefootballshow.data.model.MatchInfo
 import com.example.thefootballshow.data.model.UpcomingMatches
 import retrofit2.http.GET
 import retrofit2.http.Path
@@ -12,5 +13,11 @@ interface NetworkService {
         @Path("year") year: Int,
         @Query("status") status: String
     ) : UpcomingMatches
+
+
+    @GET("v4/matches/{competitionId}")
+    suspend fun getPreMatchDetails(
+        @Path("competitionId") competitionId : Int
+    ) : MatchInfo
 
 }

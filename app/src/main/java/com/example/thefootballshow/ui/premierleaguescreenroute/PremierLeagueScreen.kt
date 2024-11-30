@@ -39,7 +39,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import coil.decode.SvgDecoder
 import coil.request.ImageRequest
-import com.example.thefootballshow.data.model.Matche
+import com.example.thefootballshow.data.model.MatchInfo
 import com.example.thefootballshow.ui.base.SeeAllText
 import com.example.thefootballshow.ui.base.SetLeagueTitleText
 import com.example.thefootballshow.ui.base.ShowLoading
@@ -55,7 +55,7 @@ fun PremierLeagueScreenRoute(
     onItemClick: (Int,Int,Int) -> Unit
 ) {
 
-    val matchUiState: UiState<List<Matche>> by premierLeagueViewModel.matchUiState.collectAsStateWithLifecycle()
+    val matchUiState: UiState<List<MatchInfo>> by premierLeagueViewModel.matchUiState.collectAsStateWithLifecycle()
     premierLeagueViewModel.getUpcomingMatches()
 
     Log.d(
@@ -84,7 +84,7 @@ fun PremierLeagueScreenRoute(
 
 
 @Composable
-fun UpcomingMatchListScreen(matchUiState: UiState<List<Matche>>,onItemClick: (Int,Int,Int) -> Unit) {
+fun UpcomingMatchListScreen(matchUiState: UiState<List<MatchInfo>>, onItemClick: (Int, Int, Int) -> Unit) {
     when (matchUiState) {
         is UiState.Error -> {}
         UiState.Loading -> {
@@ -103,7 +103,7 @@ fun UpcomingMatchListScreen(matchUiState: UiState<List<Matche>>,onItemClick: (In
 
 
 @Composable
-fun UpcomingMatchList(data: List<Matche>,onItemClick:(Int,Int,Int) -> Unit) {
+fun UpcomingMatchList(data: List<MatchInfo>, onItemClick:(Int, Int, Int) -> Unit) {
     LazyColumn(modifier = Modifier.padding(bottom = 20.dp)) {
         items(data) {
             FullCard(data = it, onClick = {competitionId, homeTeamId, awayTeamId ->
@@ -118,7 +118,7 @@ fun UpcomingMatchList(data: List<Matche>,onItemClick:(Int,Int,Int) -> Unit) {
 //https://dribbble.com/shots/22396996-Balbalan-Live-Score-Football-App
 
 @Composable
-fun FullCard(modifier: Modifier = Modifier, data: Matche,onClick :(Int,Int,Int) ->Unit) {
+fun FullCard(modifier: Modifier = Modifier, data: MatchInfo, onClick :(Int, Int, Int) ->Unit) {
     Card(
         modifier = modifier
             .fillMaxWidth()
@@ -144,7 +144,7 @@ fun FullCard(modifier: Modifier = Modifier, data: Matche,onClick :(Int,Int,Int) 
 
 
 @Composable
-fun RowScope.HomeTeamCard(modifier: Modifier = Modifier, data: Matche) {
+fun RowScope.HomeTeamCard(modifier: Modifier = Modifier, data: MatchInfo) {
     Box(
         modifier = modifier.weight(1f),
         contentAlignment = Alignment.TopStart
@@ -160,7 +160,7 @@ fun RowScope.HomeTeamCard(modifier: Modifier = Modifier, data: Matche) {
 }
 
 @Composable
-fun RowScope.AwayTeamCard(modifier: Modifier = Modifier, data: Matche) {
+fun RowScope.AwayTeamCard(modifier: Modifier = Modifier, data: MatchInfo) {
     Box(
         modifier = modifier.weight(1f),
         contentAlignment = Alignment.TopEnd
@@ -177,7 +177,7 @@ fun RowScope.AwayTeamCard(modifier: Modifier = Modifier, data: Matche) {
 }
 
 @Composable
-fun RowScope.MatchTimeCard(modifier: Modifier = Modifier, data: Matche) {
+fun RowScope.MatchTimeCard(modifier: Modifier = Modifier, data: MatchInfo) {
     Box(
         modifier = modifier
             .weight(1f)

@@ -26,7 +26,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.thefootballshow.R
 import com.example.thefootballshow.data.model.EuroSortingModel
-import com.example.thefootballshow.data.model.Matche
 
 @Composable
 fun MainScreenEuro(modifier: Modifier = Modifier) {
