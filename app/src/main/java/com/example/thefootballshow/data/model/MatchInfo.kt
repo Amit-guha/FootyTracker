@@ -9,6 +9,7 @@ data class MatchInfo(
     val id: Int,
     val lastUpdated: String,
     val matchday: Int,
+    var venue: String? = null,
     val odds: Odds,
     val referees: List<Any>,
     val score: Score,

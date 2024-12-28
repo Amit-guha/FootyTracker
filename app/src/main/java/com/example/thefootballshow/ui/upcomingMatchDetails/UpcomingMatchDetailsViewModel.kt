@@ -22,12 +22,17 @@ class UpcomingMatchDetailsViewModel @Inject constructor(
     private val dispatcherProvider: DispatcherProvider
 ) : ViewModel() {
 
+    var competitionId : Int = -1
+    var homeTeamId : Int = -1
+    var awayTeamId : Int = -1
+
     private val _preMatchDetailsInfo  = MutableStateFlow<UiState<MatchInfo>>(UiState.Loading)
     val preMatchDetailsInfo : StateFlow<UiState<MatchInfo>> = _preMatchDetailsInfo
 
     fun getPreMatchDetailsInfo(){
         viewModelScope.launch(dispatcherProvider.main) {
-            repository.getPreMatchDetails(competitionId = 497538)
+            logger.d("competitionId2 :", "$competitionId")
+            repository.getPreMatchDetails(competitionId = this@UpcomingMatchDetailsViewModel.competitionId)
                 .flowOn(dispatcherProvider.io)
                 .catch { e ->
                     _preMatchDetailsInfo.value = UiState.Error(e.message.toString())
@@ -38,5 +43,19 @@ class UpcomingMatchDetailsViewModel @Inject constructor(
         }
 
     }
+
+    fun updateCompetitionId(competitionId: Int) {
+        logger.d("competitionId1 :", "$competitionId")
+        this.competitionId = competitionId
+    }
+
+    fun updateHomeTeamId(homeTeamId : Int){
+        this.homeTeamId = homeTeamId
+    }
+
+    fun updateAwayTeamId(awayTeamId : Int){
+        this.awayTeamId = awayTeamId
+    }
+
 
 }

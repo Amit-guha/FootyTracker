@@ -1,6 +1,8 @@
 package com.example.thefootballshow.utils.extension
 
 import java.text.SimpleDateFormat
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
 import java.util.Calendar
 import java.util.Locale
 import java.util.TimeZone
@@ -53,4 +55,29 @@ fun String.toFriendlyDate(): String {
             outputFormatter.format(date ?: currentDateStart) // Safely handle potential null date
         }
     }
+}
+
+fun String.toLocalDateAndMonth(): String {
+    val formatter = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault())
+    formatter.timeZone = TimeZone.getTimeZone("UTC")
+    val date = formatter.parse(this) ?: return ""
+
+    val localTimeZone = TimeZone.getDefault()
+    val localFormatter = SimpleDateFormat("d MMM", Locale.getDefault())
+    localFormatter.timeZone = localTimeZone
+
+    return localFormatter.format(date)
+}
+
+fun String.toLocalTime(): String {
+    val formatter = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault())
+    formatter.timeZone = TimeZone.getTimeZone("UTC")
+    val date = formatter.parse(this) ?: return ""
+
+    val localTimeZone = TimeZone.getDefault()
+    val localTimeFormatter = SimpleDateFormat("HH:mm", Locale.getDefault())
+    localTimeFormatter.timeZone = localTimeZone
+
+    // Return formatted time
+    return localTimeFormatter.format(date)
 }

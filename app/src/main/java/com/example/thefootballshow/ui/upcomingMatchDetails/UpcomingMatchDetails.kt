@@ -65,9 +65,17 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.thefootballshow.R
+import com.example.thefootballshow.data.model.MatchInfo
+import com.example.thefootballshow.ui.base.UiState
 import com.example.thefootballshow.utils.enumUtills.FixturesEnum
 import com.example.thefootballshow.utils.enumUtills.TeamStatEnum
+import com.example.thefootballshow.utils.extension.loadAsyncImage
+import com.example.thefootballshow.utils.extension.toAmPmFormat
+import com.example.thefootballshow.utils.extension.toLocalDateAndMonth
+import com.example.thefootballshow.utils.extension.toLocalTime
 
 
 //{{url}}/v4/matches/497520 -- match details before game
@@ -78,8 +86,17 @@ import com.example.thefootballshow.utils.enumUtills.TeamStatEnum
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CenterAlignedTopAppBarExample(homeTeam: String, awayTeam: String, onClick: () -> Unit) {
+fun CenterAlignedTopAppBarExample(
+    homeTeam: String,
+    awayTeam: String,
+    viewModel: UpcomingMatchDetailsViewModel,
+    onClick: () -> Unit
+) {
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
+    val matchUiState: UiState<MatchInfo> by viewModel.preMatchDetailsInfo.collectAsStateWithLifecycle()
+    viewModel.getPreMatchDetailsInfo()
+
+
     Scaffold(modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
             CenterAlignedTopAppBar(
@@ -88,8 +105,18 @@ fun CenterAlignedTopAppBarExample(homeTeam: String, awayTeam: String, onClick: (
                     titleContentColor = MaterialTheme.colorScheme.onBackground
                 ),
                 title = {
+                    val titleText = when (matchUiState) {
+                        is UiState.Success -> {
+                            val matchInfo = (matchUiState as UiState.Success<MatchInfo>).data
+                            "${matchInfo.homeTeam.shortName} vs ${matchInfo.awayTeam.shortName}"
+                        }
+
+                        is UiState.Loading -> ""
+                        is UiState.Error -> ""
+                        else -> "Match Details"
+                    }
                     Text(
-                        text = "$homeTeam vs $awayTeam",
+                        text = titleText,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
@@ -109,10 +136,10 @@ fun CenterAlignedTopAppBarExample(homeTeam: String, awayTeam: String, onClick: (
             )
         }
     ) { innerPadding ->
-        Column(modifier = Modifier.padding(innerPadding)) {
-            LeagueTitle(leagueName = "Premier League")
-            StadiumAndGameWeekDetails(stadiumName = "Emirates Stadium", gameWeek = "1")
-            CompetitionBetweenTeamsTimeInfo()
+        Column(modifier = Modifier.padding(innerPadding)
+           // .background(color = Color.White)
+        ) {
+            DisplayMatchDetails(matchUiState)
 
             //Maintain an Enum of H2H, Table, Lineups
             TeamStatus(onClickH2H = {},
@@ -786,24 +813,39 @@ fun Fixtures(modifier: Modifier = Modifier) {
 
 
 @Composable
-fun LeagueTitle(leagueName: String, modifier: Modifier = Modifier) {
+fun LeagueTitle(leagueName: String, url: String, modifier: Modifier = Modifier) {
     Row(
         horizontalArrangement = Arrangement.Start,
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
-            text = leagueName,
+            text = leagueName.ifEmpty { "" },
             style = MaterialTheme.typography.headlineMedium
         )
 
-        Image(
-            modifier = modifier
+        url.takeIf { it.isNotEmpty() }?.let {
+            Modifier
                 .padding(start = 10.dp)
                 .width(44.dp)
-                .height(44.dp),
-            painter = painterResource(id = R.drawable.premier),
-            contentDescription = "League Logo"
-        )
+                .height(44.dp)
+                .clip(CircleShape)
+                .background(Color.LightGray)
+                .loadAsyncImage(
+                    url = url,
+                    context = LocalContext.current,
+                    contentDescription = "League Logo"
+                )()
+        }
+
+
+        /*     Image(
+                 modifier = modifier
+                     .padding(start = 10.dp)
+                     .width(44.dp)
+                     .height(44.dp),
+                 painter = painterResource(id = R.drawable.premier),
+                 contentDescription = "League Logo"
+             )*/
     }
 
 }
@@ -811,7 +853,7 @@ fun LeagueTitle(leagueName: String, modifier: Modifier = Modifier) {
 @Composable
 fun StadiumAndGameWeekDetails(
     stadiumName: String,
-    gameWeek: String,
+    currentMatchDay: String,
     modifier: Modifier = Modifier
 ) {
     Row(
@@ -819,19 +861,19 @@ fun StadiumAndGameWeekDetails(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
-            text = stadiumName,
+            text = stadiumName.ifEmpty { "" },
             fontSize = 20.sp,
             color = Color.DarkGray,
         )
 
         Text(
-            text = " | ",
+            text = if (stadiumName.isNotEmpty()) " | " else "",
             fontSize = 25.sp,
             color = Color.DarkGray,
         )
 
         Text(
-            text = "GameWeek $gameWeek",
+            text = if (currentMatchDay.isNotEmpty()) "CurrentMatchDay $currentMatchDay" else "",
             fontSize = 20.sp,
             color = Color.DarkGray,
         )
@@ -841,16 +883,16 @@ fun StadiumAndGameWeekDetails(
 }
 
 @Composable
-fun CompetitionBetweenTeamsTimeInfo() {
+fun CompetitionBetweenTeamsTimeInfo(data: MatchInfo) {
     Row(
         modifier = Modifier
             .padding(top = 20.dp)
             .fillMaxWidth(1f)
     ) {
-        HomeTeamVsAwayTeamLogo()
+        HomeTeamVsAwayTeamLogo(data)
         //Spacer(modifier = Modifier.width(15.dp))
-        TeamVsTeamLastWinningInfo()
-        MatchStartTimeInfo(Modifier)
+        TeamVsTeamLastWinningInfo(data)
+        MatchStartTimeInfo(data = data)
 
     }
 }
@@ -1004,7 +1046,7 @@ fun TeamStatus(
 
 
 @Composable
-fun RowScope.MatchStartTimeInfo(modifier: Modifier = Modifier) {
+fun RowScope.MatchStartTimeInfo(modifier: Modifier = Modifier,data: MatchInfo) {
     Box(
         modifier = modifier
             .weight(1f)
@@ -1014,9 +1056,9 @@ fun RowScope.MatchStartTimeInfo(modifier: Modifier = Modifier) {
         Column(
             modifier = modifier
         ) {
-            Text(text = "13 Nov")
+            Text(text = data.utcDate.takeIf { it.isNotEmpty() }?.toLocalDateAndMonth() ?: "")
             Text(
-                text = "16:00",
+                text = data.utcDate.takeIf { it.isNotEmpty() }?.toLocalTime() ?: "",
                 style = TextStyle(
                     fontSize = 20.sp,
                     color = Color.DarkGray,
@@ -1029,17 +1071,17 @@ fun RowScope.MatchStartTimeInfo(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun RowScope.TeamVsTeamLastWinningInfo() {
+fun RowScope.TeamVsTeamLastWinningInfo(data: MatchInfo) {
     Column(
         modifier = Modifier.weight(1f),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         HomeTeamVsAwayTeamWinningStatistics(
-            nameOfTheTeam = "MCI",
+            nameOfTheTeam = data.homeTeam.tla?:"",
             winCount = "2"
         )
         HomeTeamVsAwayTeamWinningStatistics(
-            nameOfTheTeam = "CHE",
+            nameOfTheTeam = data.awayTeam.tla?:"",
             winCount = "10"
         )
     }
@@ -1048,22 +1090,46 @@ fun RowScope.TeamVsTeamLastWinningInfo() {
 
 
 @Composable
-private fun RowScope.HomeTeamVsAwayTeamLogo() {
+private fun RowScope.HomeTeamVsAwayTeamLogo(data: MatchInfo) {
     Box(
         modifier = Modifier.weight(0.5f),
         contentAlignment = Alignment.CenterStart,
 
         ) {
-        Image(
+        data.awayTeam.crest.takeIf { it.isNotEmpty() }?.let {
+            Modifier
+                .width(50.dp)
+                .height(50.dp)
+                .offset(x = 25.dp, y = 0.dp)
+                .clip(CircleShape)
+                .loadAsyncImage(
+                    url = it,
+                    context = LocalContext.current,
+                    contentDescription = "Away Team Logo"
+                )()
+        } ?: Image(
             modifier = Modifier
                 .width(50.dp)
                 .height(50.dp)
                 .offset(x = 25.dp, y = 0.dp)
                 .clip(CircleShape),
             painter = painterResource(id = R.drawable.pl_main_logo),
-            contentDescription = "Home Team Logo"
+            contentDescription = "Away Team Logo"
         )
-        Box {
+
+        data.homeTeam.crest.takeIf { it.isNotEmpty() }?.let {
+            Box {
+                Modifier
+                    .size(50.dp)
+                    .clip(CircleShape)
+                    .background(Color.LightGray)
+                    .loadAsyncImage(
+                        url = it,
+                        context = LocalContext.current,
+                        contentDescription = "Home Team Logo"
+                    )()
+            }
+        } ?: Box {
             Image(
                 modifier = Modifier
                     .size(50.dp)
@@ -1072,6 +1138,8 @@ private fun RowScope.HomeTeamVsAwayTeamLogo() {
                 contentDescription = "Home Team Logo"
             )
         }
+
+
     }
 }
 
@@ -1119,8 +1187,10 @@ fun HomeTeamVsAwayTeamWinningStatistics(
 @Preview
 fun UpComingMatchDetailsPreview() {
     val context = LocalContext.current
-    CenterAlignedTopAppBarExample("Chelsea", "Arsenal") {
+    CenterAlignedTopAppBarExample("Chelsea", "Arsenal", hiltViewModel()) {
         Toast.makeText(context, "Back", Toast.LENGTH_SHORT).show()
     }
 }
+
+
 
