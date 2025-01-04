@@ -20,4 +20,10 @@ interface NetworkService {
         @Path("competitionId") competitionId : Int
     ) : MatchInfo
 
+
+    @GET("v4/teams/{teamId}/matches?status=FINISHED&season=2024&competitions&limit=5")
+    suspend fun getLastFiveMatchInfo(
+        @Path("teamId") teamId : Int
+    ) : UpcomingMatches
+
 }

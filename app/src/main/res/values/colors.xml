@@ -11,4 +11,34 @@
     <color name="gray_level_2">#111111</color>
     <color name="gray_level_3">#525C66</color>
     <color name="gray_level_4">#525D67</color>"
+    <color name="french_sky_blue">#76B0F5</color>
+    <color name="rich_black">#040505</color>
+    <color name="royal_blue">#5265E4</color>
+    <color name="outer_space">#405253</color>
+    <color name="oxford_blue">#0E1E53</color>
+    <color name="chinese_blue">#3C599D</color>
+    <color name="asparagus">#8AB370</color>
+    <color name="moonstone">#2DA5C6</color>
+
+
+    <color name="pink_500">#E91E63</color>
+    <color name="pink_light">#F8BBD0</color>
+    <color name="pink_dark">#C2185B</color>
+
+    <color name="mint_green">#98FF98</color>
+    <color name="forest_green">#228B22</color>
+    <color name="emerald_green">#50C878</color>
+    <color name="olive_green">#808000</color>
+    <color name="sea_green">#2E8B57</color>
+    <color name="lime_green">#32CD32</color>
+    <color name="asparagus_green">#87A96B</color>
 </resources>
+
+  <!--  #040505
+    #5265E4
+    #405253
+    #0E1E53
+    #76B0F5
+    #3C599D
+    #8AB370
+    #2DA5C6-->

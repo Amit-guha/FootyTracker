@@ -65,8 +65,20 @@ fun String.toLocalDateAndMonth(): String {
     val localTimeZone = TimeZone.getDefault()
     val localFormatter = SimpleDateFormat("d MMM", Locale.getDefault())
     localFormatter.timeZone = localTimeZone
+    // return localFormatter.format(date)
+    val formattedDate = localFormatter.format(date)
+    val dayOfMonth = formattedDate.split(" ")[0].toInt()
 
-    return localFormatter.format(date)
+    // Adding ordinal suffix (1st, 2nd, 3rd, 4th, etc.)
+    val suffix = when (dayOfMonth % 10) {
+        1 -> if (dayOfMonth != 11) "st" else "th"
+        2 -> if (dayOfMonth != 12) "nd" else "th"
+        3 -> if (dayOfMonth != 13) "rd" else "th"
+        else -> "th"
+    }
+
+    return "${dayOfMonth}$suffix ${formattedDate.split(" ")[1]}"
+
 }
 
 fun String.toLocalTime(): String {

@@ -19,4 +19,13 @@ class UpcomingMatchDetailsRepository @Inject constructor(
             emit(preMatchInfo)
         }
     }
+
+
+    suspend fun getLastFiveMatchInfo(teamId : Int): Flow<List<MatchInfo>> {
+        val lastFiveMatchInfo = networkService.getLastFiveMatchInfo(teamId)
+        return flow {
+            emit(lastFiveMatchInfo.matches)
+        }
+
+    }
 }

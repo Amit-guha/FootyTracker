@@ -7,6 +7,7 @@ import com.example.thefootballshow.data.repository.UpcomingMatchDetailsRepositor
 import com.example.thefootballshow.ui.base.UiState
 import com.example.thefootballshow.utils.DispatcherProvider
 import com.example.thefootballshow.utils.Logger.Logger
+import com.example.thefootballshow.utils.extension.showLog
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -29,6 +30,13 @@ class UpcomingMatchDetailsViewModel @Inject constructor(
     private val _preMatchDetailsInfo  = MutableStateFlow<UiState<MatchInfo>>(UiState.Loading)
     val preMatchDetailsInfo : StateFlow<UiState<MatchInfo>> = _preMatchDetailsInfo
 
+    private val _homeTeamMatchData = MutableStateFlow<UiState<List<MatchInfo>>>(UiState.Loading)
+    val homeTeamMatchData : StateFlow<UiState<List<MatchInfo>>> = _homeTeamMatchData
+
+    private val _awayTeamMatchData = MutableStateFlow<UiState<List<MatchInfo>>>(UiState.Loading)
+    val awayTeamMatchData : StateFlow<UiState<List<MatchInfo>>> = _awayTeamMatchData
+
+
     fun getPreMatchDetailsInfo(){
         viewModelScope.launch(dispatcherProvider.main) {
             logger.d("competitionId2 :", "$competitionId")
@@ -43,6 +51,35 @@ class UpcomingMatchDetailsViewModel @Inject constructor(
         }
 
     }
+
+
+    fun getLastFiveMatchDetails(){
+        viewModelScope.launch(dispatcherProvider.main) {
+            showLog(message = homeTeamId.toString())
+            repository.getLastFiveMatchInfo(homeTeamId)
+                .flowOn(dispatcherProvider.io)
+                .catch {
+                    _homeTeamMatchData.value = UiState.Error(it.message.toString())
+                }
+                .collect{
+                    _homeTeamMatchData.value = UiState.Success(it)
+                }
+        }
+
+        viewModelScope.launch(dispatcherProvider.main) {
+            showLog(message = "awayTeam ->$awayTeamId")
+            repository.getLastFiveMatchInfo(awayTeamId)
+                .flowOn(dispatcherProvider.io)
+                .catch {
+                    _awayTeamMatchData.value = UiState.Error(it.message.toString())
+                }
+                .collect{
+                    _awayTeamMatchData.value = UiState.Success(it)
+                }
+        }
+
+    }
+
 
     fun updateCompetitionId(competitionId: Int) {
         logger.d("competitionId1 :", "$competitionId")
