@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
@@ -70,12 +71,16 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.thefootballshow.R
 import com.example.thefootballshow.data.model.MatchInfo
+import com.example.thefootballshow.data.model.Standing
+import com.example.thefootballshow.data.model.Standings
+import com.example.thefootballshow.data.model.Table
 import com.example.thefootballshow.ui.base.ShowLoading
 import com.example.thefootballshow.ui.base.UiState
 import com.example.thefootballshow.utils.enumUtills.FixturesEnum
 import com.example.thefootballshow.utils.enumUtills.TeamStatEnum
 import com.example.thefootballshow.utils.extension.getResultColor
 import com.example.thefootballshow.utils.extension.loadAsyncImage
+import com.example.thefootballshow.utils.extension.showLog
 import com.example.thefootballshow.utils.extension.toLocalDateAndMonth
 import com.example.thefootballshow.utils.extension.toLocalTime
 
@@ -99,9 +104,11 @@ fun CenterAlignedTopAppBarExample(
 
     val homeTeamUiState: UiState<List<MatchInfo>> by viewModel.homeTeamMatchData.collectAsStateWithLifecycle()
     val awayTeamUiState: UiState<List<MatchInfo>> by viewModel.awayTeamMatchData.collectAsStateWithLifecycle()
+    val leagueTableUiState: UiState<Standings> by viewModel.leagueTableInfo.collectAsStateWithLifecycle()
 
     viewModel.getPreMatchDetailsInfo()
     viewModel.getLastFiveMatchDetails()
+    viewModel.getStandingInfo()
 
 
     Scaffold(modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
@@ -160,9 +167,9 @@ fun CenterAlignedTopAppBarExample(
                 onAwayCallback = {}
             )
             TeamStatLazyColumn(homeTeamUiState = homeTeamUiState, awayTeamUiState = awayTeamUiState)
-            // LeagueHeadLine(text = stringResource(R.string.league_table))
-            // LeagueTableSeasonSpinner()
-            // LeagueTable()
+            LeagueHeadLine(text = stringResource(R.string.league_table))
+            LeagueTableSeasonSpinner()
+            LeagueTable(leagueTableUiState)
             // DrawFootballField()
         }
 
@@ -422,22 +429,48 @@ private fun DrawScope.drawParentRect(
 
 
 @Composable
-fun LeagueTable(modifier: Modifier = Modifier) {
-    LazyColumn(modifier.horizontalScroll(rememberScrollState())) {
-        items(5) {
-            LeagueTableItem()
+fun LeagueTable(
+    tableInfoUiState: UiState<Standings>,
+    modifier: Modifier = Modifier
+) {
+    val context = LocalContext.current
+    when (tableInfoUiState) {
+        is UiState.Error -> {}
+        UiState.Loading -> {
+            ShowLoading()
+        }
+
+        is UiState.Success -> {
+            val data = tableInfoUiState.data
+            context.showLog(tag = "Standings",message = "${data.standings.size}")
+            if (data.standings.isNotEmpty() && data.standings[0].table.isNotEmpty()){
+                LazyColumn(modifier.horizontalScroll(rememberScrollState())) {
+                    itemsIndexed(data.standings[0].table) { index, item ->
+                        LeagueTableItem(item)
+                    }
+                }
+            }
+
         }
     }
+
+
 }
 
 @Composable
-fun LeagueTableItem(modifier: Modifier = Modifier) {
+fun LeagueTableItem(table: Table, modifier: Modifier = Modifier) {
     Row(
         modifier = Modifier
             .padding(top = 10.dp, start = 20.dp)
     ) {
+        //"Position"
+        val position = if (table.position == -1) {
+            "Position"
+        } else {
+            if (table.position < 10) "0${table.position}" else table.position.toString()
+        }
         Text(
-            "Position",
+            position,
             overflow = TextOverflow.Ellipsis,
             maxLines = 1,
             style = TextStyle(
@@ -446,8 +479,9 @@ fun LeagueTableItem(modifier: Modifier = Modifier) {
             )
         )
 
+        val team = table.team.shortName.ifEmpty { "Team" }
         Text(
-            "Team",
+            team,
             modifier = modifier
                 .padding(start = 10.dp)
                 .align(Alignment.CenterVertically),
@@ -459,8 +493,13 @@ fun LeagueTableItem(modifier: Modifier = Modifier) {
             )
         )
 
+        val playedGames = if (table.playedGames == -1) {
+            "Points"
+        } else {
+            table.playedGames.toString()
+        }
         Text(
-            "MP",
+            playedGames,
             overflow = TextOverflow.Ellipsis,
             maxLines = 1,
             modifier = modifier
@@ -472,8 +511,13 @@ fun LeagueTableItem(modifier: Modifier = Modifier) {
             )
         )
 
+        val win = if (table.won == -1) {
+            "W"
+        } else {
+            table.won.toString()
+        }
         Text(
-            "W",
+            win,
             overflow = TextOverflow.Ellipsis,
             maxLines = 1,
             modifier = modifier
@@ -485,8 +529,13 @@ fun LeagueTableItem(modifier: Modifier = Modifier) {
             )
         )
 
+        val draw = if (table.draw == -1) {
+            "D"
+        } else {
+            table.draw.toString()
+        }
         Text(
-            "D",
+            draw,
             overflow = TextOverflow.Ellipsis,
             maxLines = 1,
             modifier = modifier
@@ -498,8 +547,13 @@ fun LeagueTableItem(modifier: Modifier = Modifier) {
             )
         )
 
+        val lost = if (table.lost == -1) {
+            "L"
+        } else {
+            table.lost.toString()
+        }
         Text(
-            "L",
+            lost,
             overflow = TextOverflow.Ellipsis,
             maxLines = 1,
             modifier = modifier
@@ -511,8 +565,14 @@ fun LeagueTableItem(modifier: Modifier = Modifier) {
             )
         )
 
+        val goalsFor = if (table.goalsFor == -1) {
+            "GF"
+        } else {
+            table.goalsFor.toString()
+
+        }
         Text(
-            "GF",
+            goalsFor,
             overflow = TextOverflow.Ellipsis,
             maxLines = 1,
             modifier = modifier
@@ -524,8 +584,13 @@ fun LeagueTableItem(modifier: Modifier = Modifier) {
             )
         )
 
+        val goalsAgainst = if (table.goalsAgainst == -1) {
+            "GA"
+        } else {
+            table.goalsAgainst.toString()
+        }
         Text(
-            "GA",
+            goalsAgainst,
             overflow = TextOverflow.Ellipsis,
             maxLines = 1,
             modifier = modifier
@@ -537,8 +602,13 @@ fun LeagueTableItem(modifier: Modifier = Modifier) {
             )
         )
 
+        val goalsDifference = if (table.goalDifference == -1) {
+            "GD"
+        } else {
+            table.goalDifference.toString()
+        }
         Text(
-            "GD",
+            goalsDifference,
             overflow = TextOverflow.Ellipsis,
             maxLines = 1,
             modifier = modifier
@@ -550,8 +620,13 @@ fun LeagueTableItem(modifier: Modifier = Modifier) {
             )
         )
 
+        val points = if (table.points == -1) {
+            "Pts"
+        } else {
+            table.points.toString()
+        }
         Text(
-            "Pts",
+            points,
             overflow = TextOverflow.Ellipsis,
             maxLines = 1,
             modifier = modifier

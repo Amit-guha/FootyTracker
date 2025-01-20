@@ -1,8 +1,13 @@
 package com.example.thefootballshow.ui.upcomingMatchDetails
 
+import android.health.connect.datatypes.SleepSessionRecord.StageType
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.thefootballshow.data.model.MatchInfo
+import com.example.thefootballshow.data.model.Standing
+import com.example.thefootballshow.data.model.Standings
+import com.example.thefootballshow.data.model.Table
+import com.example.thefootballshow.data.model.Team
 import com.example.thefootballshow.data.repository.UpcomingMatchDetailsRepository
 import com.example.thefootballshow.ui.base.UiState
 import com.example.thefootballshow.utils.DispatcherProvider
@@ -23,21 +28,24 @@ class UpcomingMatchDetailsViewModel @Inject constructor(
     private val dispatcherProvider: DispatcherProvider
 ) : ViewModel() {
 
-    var competitionId : Int = -1
-    var homeTeamId : Int = -1
-    var awayTeamId : Int = -1
+    var competitionId: Int = -1
+    var homeTeamId: Int = -1
+    var awayTeamId: Int = -1
 
-    private val _preMatchDetailsInfo  = MutableStateFlow<UiState<MatchInfo>>(UiState.Loading)
-    val preMatchDetailsInfo : StateFlow<UiState<MatchInfo>> = _preMatchDetailsInfo
+    private val _preMatchDetailsInfo = MutableStateFlow<UiState<MatchInfo>>(UiState.Loading)
+    val preMatchDetailsInfo: StateFlow<UiState<MatchInfo>> = _preMatchDetailsInfo
 
     private val _homeTeamMatchData = MutableStateFlow<UiState<List<MatchInfo>>>(UiState.Loading)
-    val homeTeamMatchData : StateFlow<UiState<List<MatchInfo>>> = _homeTeamMatchData
+    val homeTeamMatchData: StateFlow<UiState<List<MatchInfo>>> = _homeTeamMatchData
 
     private val _awayTeamMatchData = MutableStateFlow<UiState<List<MatchInfo>>>(UiState.Loading)
-    val awayTeamMatchData : StateFlow<UiState<List<MatchInfo>>> = _awayTeamMatchData
+    val awayTeamMatchData: StateFlow<UiState<List<MatchInfo>>> = _awayTeamMatchData
+
+    private val _leagueTableInfo = MutableStateFlow<UiState<Standings>>(UiState.Loading)
+    val leagueTableInfo: StateFlow<UiState<Standings>> = _leagueTableInfo
 
 
-    fun getPreMatchDetailsInfo(){
+    fun getPreMatchDetailsInfo() {
         viewModelScope.launch(dispatcherProvider.main) {
             logger.d("competitionId2 :", "$competitionId")
             repository.getPreMatchDetails(competitionId = this@UpcomingMatchDetailsViewModel.competitionId)
@@ -45,7 +53,7 @@ class UpcomingMatchDetailsViewModel @Inject constructor(
                 .catch { e ->
                     _preMatchDetailsInfo.value = UiState.Error(e.message.toString())
                 }
-                .collect{
+                .collect {
                     _preMatchDetailsInfo.value = UiState.Success(it)
                 }
         }
@@ -53,7 +61,7 @@ class UpcomingMatchDetailsViewModel @Inject constructor(
     }
 
 
-    fun getLastFiveMatchDetails(){
+    fun getLastFiveMatchDetails() {
         viewModelScope.launch(dispatcherProvider.main) {
             showLog(message = homeTeamId.toString())
             repository.getLastFiveMatchInfo(homeTeamId)
@@ -61,7 +69,7 @@ class UpcomingMatchDetailsViewModel @Inject constructor(
                 .catch {
                     _homeTeamMatchData.value = UiState.Error(it.message.toString())
                 }
-                .collect{
+                .collect {
                     _homeTeamMatchData.value = UiState.Success(it)
                 }
         }
@@ -73,11 +81,53 @@ class UpcomingMatchDetailsViewModel @Inject constructor(
                 .catch {
                     _awayTeamMatchData.value = UiState.Error(it.message.toString())
                 }
-                .collect{
+                .collect {
                     _awayTeamMatchData.value = UiState.Success(it)
                 }
         }
 
+    }
+
+    fun getStandingInfo() {
+        viewModelScope.launch(dispatcherProvider.main) {
+            repository.getStanding(competitionId = "PL", season = 2024)
+                .flowOn(dispatcherProvider.io)
+                .catch {
+                    _leagueTableInfo.value = UiState.Error(it.message.toString())
+                }
+                .collect {
+                    val standings = it.standings.toMutableList()
+                  /*  standings.add(0, Standing(
+                        group = "",
+                        type = "",
+                        table = listOf(
+                            Table(
+                                draw = -1,
+                                form = "",
+                                goalDifference = -1,
+                                goalsAgainst = -1,
+                                goalsFor = -1,
+                                lost = -1,
+                                points = -1,
+                                playedGames = -1,
+                                position = -1,
+                                won = -1,
+                                team = Team(
+                                    crest = "",
+                                    name = "",
+                                    shortName = "",
+                                    id = -1,
+                                    tla = ""
+                                )
+                            )
+                        ),
+                        stage = ""
+                    ))*/
+                    showLog(message = standings.joinToString { "" })
+                   // _leagueTableInfo.value = UiState.Success(it.copy(standings = standings))
+                    _leagueTableInfo.value = UiState.Success(it)
+                }
+        }
     }
 
 
@@ -86,11 +136,11 @@ class UpcomingMatchDetailsViewModel @Inject constructor(
         this.competitionId = competitionId
     }
 
-    fun updateHomeTeamId(homeTeamId : Int){
+    fun updateHomeTeamId(homeTeamId: Int) {
         this.homeTeamId = homeTeamId
     }
 
-    fun updateAwayTeamId(awayTeamId : Int){
+    fun updateAwayTeamId(awayTeamId: Int) {
         this.awayTeamId = awayTeamId
     }
 

@@ -3,6 +3,7 @@ package com.example.thefootballshow.data.repository
 import android.util.Log
 import com.example.thefootballshow.data.Api.NetworkService
 import com.example.thefootballshow.data.model.MatchInfo
+import com.example.thefootballshow.data.model.Standings
 import dagger.hilt.android.scopes.ViewModelScoped
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -27,5 +28,12 @@ class UpcomingMatchDetailsRepository @Inject constructor(
             emit(lastFiveMatchInfo.matches)
         }
 
+    }
+
+    suspend fun getStanding(competitionId : String, season : Int): Flow<Standings> {
+        val standings = networkService.getStandings(competitionId = competitionId, season = season)
+        return flow {
+            emit(standings)
+        }
     }
 }
