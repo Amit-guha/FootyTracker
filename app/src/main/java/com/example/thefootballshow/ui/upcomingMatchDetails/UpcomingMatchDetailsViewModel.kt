@@ -1,10 +1,8 @@
 package com.example.thefootballshow.ui.upcomingMatchDetails
 
-import android.health.connect.datatypes.SleepSessionRecord.StageType
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.thefootballshow.data.model.MatchInfo
-import com.example.thefootballshow.data.model.Standing
 import com.example.thefootballshow.data.model.Standings
 import com.example.thefootballshow.data.model.Table
 import com.example.thefootballshow.data.model.Team
@@ -97,35 +95,31 @@ class UpcomingMatchDetailsViewModel @Inject constructor(
                 }
                 .collect {
                     val standings = it.standings.toMutableList()
-                  /*  standings.add(0, Standing(
-                        group = "",
-                        type = "",
-                        table = listOf(
-                            Table(
-                                draw = -1,
-                                form = "",
-                                goalDifference = -1,
-                                goalsAgainst = -1,
-                                goalsFor = -1,
-                                lost = -1,
-                                points = -1,
-                                playedGames = -1,
-                                position = -1,
-                                won = -1,
-                                team = Team(
-                                    crest = "",
-                                    name = "",
-                                    shortName = "",
-                                    id = -1,
-                                    tla = ""
-                                )
-                            )
-                        ),
-                        stage = ""
-                    ))*/
-                    showLog(message = standings.joinToString { "" })
-                   // _leagueTableInfo.value = UiState.Success(it.copy(standings = standings))
-                    _leagueTableInfo.value = UiState.Success(it)
+                    val newTable = Table(
+                        draw = -1,
+                        form = "",
+                        goalDifference = -1,
+                        goalsAgainst = -1,
+                        goalsFor = -1,
+                        lost = -1,
+                        points = -1,
+                        playedGames = -1,
+                        position = -1,
+                        won = -1,
+                        team = Team(
+                            crest = "",
+                            name = "",
+                            shortName = "",
+                            id = -1,
+                            tla = ""
+                        )
+                    )
+                    val updatedStandings = standings.map { standing ->
+                        standing.copy(
+                            table = listOf(newTable) + standing.table
+                        )
+                    }
+                    _leagueTableInfo.value = UiState.Success(it.copy(standings = updatedStandings))
                 }
         }
     }

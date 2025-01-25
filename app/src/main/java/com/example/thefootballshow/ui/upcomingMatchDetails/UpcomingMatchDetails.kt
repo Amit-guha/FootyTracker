@@ -1,10 +1,10 @@
 package com.example.thefootballshow.ui.upcomingMatchDetails
 
 import android.widget.Toast
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,7 +19,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -71,11 +70,10 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.thefootballshow.R
 import com.example.thefootballshow.data.model.MatchInfo
-import com.example.thefootballshow.data.model.Standing
 import com.example.thefootballshow.data.model.Standings
-import com.example.thefootballshow.data.model.Table
 import com.example.thefootballshow.ui.base.ShowLoading
 import com.example.thefootballshow.ui.base.UiState
+import com.example.thefootballshow.ui.leagueTable.TeamStandingInLeague
 import com.example.thefootballshow.utils.enumUtills.FixturesEnum
 import com.example.thefootballshow.utils.enumUtills.TeamStatEnum
 import com.example.thefootballshow.utils.extension.getResultColor
@@ -428,6 +426,7 @@ private fun DrawScope.drawParentRect(
 }
 
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun LeagueTable(
     tableInfoUiState: UiState<Standings>,
@@ -442,11 +441,16 @@ fun LeagueTable(
 
         is UiState.Success -> {
             val data = tableInfoUiState.data
-            context.showLog(tag = "Standings",message = "${data.standings.size}")
-            if (data.standings.isNotEmpty() && data.standings[0].table.isNotEmpty()){
-                LazyColumn(modifier.horizontalScroll(rememberScrollState())) {
+            context.showLog(tag = "Standings", message = "${data.standings.size}")
+            if (data.standings.isNotEmpty() && data.standings[0].table.isNotEmpty()) {
+                LazyColumn {
+                    stickyHeader {
+                        TeamStandingInLeague(table = data.standings[0].table[0])
+                    }
                     itemsIndexed(data.standings[0].table) { index, item ->
-                        LeagueTableItem(item)
+                        if (index != 0) {
+                            TeamStandingInLeague(item)
+                        }
                     }
                 }
             }
@@ -457,188 +461,6 @@ fun LeagueTable(
 
 }
 
-@Composable
-fun LeagueTableItem(table: Table, modifier: Modifier = Modifier) {
-    Row(
-        modifier = Modifier
-            .padding(top = 10.dp, start = 20.dp)
-    ) {
-        //"Position"
-        val position = if (table.position == -1) {
-            "Position"
-        } else {
-            if (table.position < 10) "0${table.position}" else table.position.toString()
-        }
-        Text(
-            position,
-            overflow = TextOverflow.Ellipsis,
-            maxLines = 1,
-            style = TextStyle(
-                fontSize = 18.sp,
-                color = Color.DarkGray
-            )
-        )
-
-        val team = table.team.shortName.ifEmpty { "Team" }
-        Text(
-            team,
-            modifier = modifier
-                .padding(start = 10.dp)
-                .align(Alignment.CenterVertically),
-            overflow = TextOverflow.Ellipsis,
-            maxLines = 1,
-            style = TextStyle(
-                fontSize = 18.sp,
-                color = Color.DarkGray
-            )
-        )
-
-        val playedGames = if (table.playedGames == -1) {
-            "Points"
-        } else {
-            table.playedGames.toString()
-        }
-        Text(
-            playedGames,
-            overflow = TextOverflow.Ellipsis,
-            maxLines = 1,
-            modifier = modifier
-                .padding(start = 10.dp)
-                .align(Alignment.CenterVertically),
-            style = TextStyle(
-                fontSize = 18.sp,
-                color = Color.DarkGray
-            )
-        )
-
-        val win = if (table.won == -1) {
-            "W"
-        } else {
-            table.won.toString()
-        }
-        Text(
-            win,
-            overflow = TextOverflow.Ellipsis,
-            maxLines = 1,
-            modifier = modifier
-                .padding(start = 10.dp)
-                .align(Alignment.CenterVertically),
-            style = TextStyle(
-                fontSize = 18.sp,
-                color = Color.DarkGray
-            )
-        )
-
-        val draw = if (table.draw == -1) {
-            "D"
-        } else {
-            table.draw.toString()
-        }
-        Text(
-            draw,
-            overflow = TextOverflow.Ellipsis,
-            maxLines = 1,
-            modifier = modifier
-                .padding(start = 10.dp)
-                .align(Alignment.CenterVertically),
-            style = TextStyle(
-                fontSize = 18.sp,
-                color = Color.DarkGray
-            )
-        )
-
-        val lost = if (table.lost == -1) {
-            "L"
-        } else {
-            table.lost.toString()
-        }
-        Text(
-            lost,
-            overflow = TextOverflow.Ellipsis,
-            maxLines = 1,
-            modifier = modifier
-                .padding(start = 10.dp)
-                .align(Alignment.CenterVertically),
-            style = TextStyle(
-                fontSize = 18.sp,
-                color = Color.DarkGray
-            )
-        )
-
-        val goalsFor = if (table.goalsFor == -1) {
-            "GF"
-        } else {
-            table.goalsFor.toString()
-
-        }
-        Text(
-            goalsFor,
-            overflow = TextOverflow.Ellipsis,
-            maxLines = 1,
-            modifier = modifier
-                .padding(start = 10.dp)
-                .align(Alignment.CenterVertically),
-            style = TextStyle(
-                fontSize = 18.sp,
-                color = Color.DarkGray
-            )
-        )
-
-        val goalsAgainst = if (table.goalsAgainst == -1) {
-            "GA"
-        } else {
-            table.goalsAgainst.toString()
-        }
-        Text(
-            goalsAgainst,
-            overflow = TextOverflow.Ellipsis,
-            maxLines = 1,
-            modifier = modifier
-                .padding(start = 10.dp)
-                .align(Alignment.CenterVertically),
-            style = TextStyle(
-                fontSize = 18.sp,
-                color = Color.DarkGray
-            )
-        )
-
-        val goalsDifference = if (table.goalDifference == -1) {
-            "GD"
-        } else {
-            table.goalDifference.toString()
-        }
-        Text(
-            goalsDifference,
-            overflow = TextOverflow.Ellipsis,
-            maxLines = 1,
-            modifier = modifier
-                .padding(start = 10.dp)
-                .align(Alignment.CenterVertically),
-            style = TextStyle(
-                fontSize = 18.sp,
-                color = Color.DarkGray
-            )
-        )
-
-        val points = if (table.points == -1) {
-            "Pts"
-        } else {
-            table.points.toString()
-        }
-        Text(
-            points,
-            overflow = TextOverflow.Ellipsis,
-            maxLines = 1,
-            modifier = modifier
-                .padding(start = 10.dp)
-                .align(Alignment.CenterVertically),
-            style = TextStyle(
-                fontSize = 18.sp,
-                color = Color.DarkGray
-            )
-        )
-    }
-}
 
 
 @Composable
