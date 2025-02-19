@@ -1,18 +1,20 @@
 package com.example.thefootballshow.data.Api
 
+import com.example.thefootballshow.data.model.Competitions
 import com.example.thefootballshow.data.model.MatchInfo
 import com.example.thefootballshow.data.model.Standings
 import com.example.thefootballshow.data.model.UpcomingMatches
 import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query
+import retrofit2.http.QueryMap
 
 interface NetworkService {
 
-    @GET("v4/competitions/{year}/matches")
+    @GET("v4/competitions/{leagueId}/matches")
     suspend fun getUpcomingMatchList(
-        @Path("year") year: Int,
-        @Query("status") status: String
+        @Path("leagueId") year: Int,
+        @QueryMap params: Map<String, String>
     ) : UpcomingMatches
 
 
@@ -32,6 +34,12 @@ interface NetworkService {
         @Path("competitionId") competitionId : String,
         @Query("season") season : Int
     ) : Standings
+
+
+    @GET("v4/competitions")
+    suspend fun getAllCompetitions(
+        @Query("areas") areas : String
+    ) : Competitions
 
 
 }

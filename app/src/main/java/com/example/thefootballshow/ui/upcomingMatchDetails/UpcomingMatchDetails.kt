@@ -1175,7 +1175,7 @@ private fun RowScope.HomeTeamVsAwayTeamLogo(data: MatchInfo) {
             contentDescription = "Away Team Logo"
         )
 
-        data.homeTeam.crest.takeIf { it.isNotEmpty() }?.let {
+        data.homeTeam.crest.takeIf { it?.isNotEmpty() == true}?.let {
             Box {
                 Modifier
                     .size(50.dp)

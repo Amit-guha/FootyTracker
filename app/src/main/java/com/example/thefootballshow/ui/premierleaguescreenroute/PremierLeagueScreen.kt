@@ -1,6 +1,7 @@
 package com.example.thefootballshow.ui.premierleaguescreenroute
 
 import android.util.Log
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -13,8 +14,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -28,6 +31,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -39,12 +43,15 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import coil.decode.SvgDecoder
 import coil.request.ImageRequest
+import com.example.thefootballshow.R
+import com.example.thefootballshow.data.model.Competitions
 import com.example.thefootballshow.data.model.MatchInfo
 import com.example.thefootballshow.ui.base.SeeAllText
-import com.example.thefootballshow.ui.base.SetLeagueTitleText
 import com.example.thefootballshow.ui.base.ShowLoading
 import com.example.thefootballshow.ui.base.UiState
 import com.example.thefootballshow.ui.base.UpcomingMatchesText
+import com.example.thefootballshow.ui.leagueSelector.LeagueSelectorItem
+import com.example.thefootballshow.utils.extension.showLog
 import com.example.thefootballshow.utils.extension.toAmPmFormat
 import com.example.thefootballshow.utils.extension.toFriendlyDate
 
@@ -52,11 +59,14 @@ import com.example.thefootballshow.utils.extension.toFriendlyDate
 fun PremierLeagueScreenRoute(
     modifier: Modifier = Modifier,
     premierLeagueViewModel: PremierLeagueViewModel = hiltViewModel(),
-    onItemClick: (Int,Int,Int) -> Unit
+    onItemClick: (Int, Int, Int) -> Unit
 ) {
 
     val matchUiState: UiState<List<MatchInfo>> by premierLeagueViewModel.matchUiState.collectAsStateWithLifecycle()
+    val competitionList by premierLeagueViewModel.competitionList.collectAsStateWithLifecycle()
+
     premierLeagueViewModel.getUpcomingMatches()
+    premierLeagueViewModel.getAllCompetitionInfo()
 
     Log.d(
         "PremierLeagueScreenRoute",
@@ -64,8 +74,14 @@ fun PremierLeagueScreenRoute(
     )
 
     Column(modifier = modifier.fillMaxSize()) {
-        SetLeagueTitleText(leagueTitle = "Premier League")
+        // SetLeagueTitleText(leagueTitle = "Premier League")
         Spacer(modifier = modifier.height(40.dp))
+        DisplayLeagueSelection(competitionList) { leagueId ->
+            showLog(message = leagueId.toString())
+            premierLeagueViewModel.updateAreaCompetition(leagueId)
+        }
+        Spacer(modifier = Modifier.height(20.dp))
+
         Row(
             modifier = modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.Absolute.SpaceBetween
@@ -74,9 +90,11 @@ fun PremierLeagueScreenRoute(
             SeeAllText {}
         }
         Spacer(modifier = modifier.height(5.dp))
-        UpcomingMatchListScreen(matchUiState,onItemClick = { competitionId, homeTeamId, awayTeamId ->
-            onItemClick(competitionId,homeTeamId,awayTeamId)
-        })
+        UpcomingMatchListScreen(
+            matchUiState,
+            onItemClick = { competitionId, homeTeamId, awayTeamId ->
+                onItemClick(competitionId, homeTeamId, awayTeamId)
+            })
 
     }
 
@@ -84,7 +102,40 @@ fun PremierLeagueScreenRoute(
 
 
 @Composable
-fun UpcomingMatchListScreen(matchUiState: UiState<List<MatchInfo>>, onItemClick: (Int, Int, Int) -> Unit) {
+fun DisplayLeagueSelection(
+    competitionList: UiState<Competitions>,
+    onItemClick: (leagueId: Int) -> Unit
+) {
+    when (competitionList) {
+        is UiState.Error -> {
+
+        }
+
+        UiState.Loading -> {
+            ShowLoading()
+        }
+
+        is UiState.Success -> {
+            val competitions = competitionList.data.competitions
+            val context = LocalContext.current
+            context.showLog(message = competitions.size.toString())
+            LazyRow(modifier = Modifier.padding(start = 8.dp)) {
+                items(competitions) {
+                    LeagueSelectorItem(areaCompetition = it) { leagueId ->
+                        onItemClick(leagueId)
+                    }
+                }
+            }
+
+        }
+    }
+}
+
+@Composable
+fun UpcomingMatchListScreen(
+    matchUiState: UiState<List<MatchInfo>>,
+    onItemClick: (Int, Int, Int) -> Unit
+) {
     when (matchUiState) {
         is UiState.Error -> {}
         UiState.Loading -> {
@@ -92,9 +143,11 @@ fun UpcomingMatchListScreen(matchUiState: UiState<List<MatchInfo>>, onItemClick:
         }
 
         is UiState.Success -> {
-            UpcomingMatchList(matchUiState.data, onItemClick = { competitionId, homeTeamId, awayTeamId ->
-                onItemClick(competitionId,homeTeamId,awayTeamId)
-            })
+            UpcomingMatchList(
+                matchUiState.data,
+                onItemClick = { competitionId, homeTeamId, awayTeamId ->
+                    onItemClick(competitionId, homeTeamId, awayTeamId)
+                })
         }
 
         else -> {}
@@ -103,11 +156,11 @@ fun UpcomingMatchListScreen(matchUiState: UiState<List<MatchInfo>>, onItemClick:
 
 
 @Composable
-fun UpcomingMatchList(data: List<MatchInfo>, onItemClick:(Int, Int, Int) -> Unit) {
+fun UpcomingMatchList(data: List<MatchInfo>, onItemClick: (Int, Int, Int) -> Unit) {
     LazyColumn(modifier = Modifier.padding(bottom = 20.dp)) {
         items(data) {
-            FullCard(data = it, onClick = {competitionId, homeTeamId, awayTeamId ->
-                onItemClick(competitionId,homeTeamId,awayTeamId)
+            FullCard(data = it, onClick = { competitionId, homeTeamId, awayTeamId ->
+                onItemClick(competitionId, homeTeamId, awayTeamId)
             })
         }
     }
@@ -118,13 +171,13 @@ fun UpcomingMatchList(data: List<MatchInfo>, onItemClick:(Int, Int, Int) -> Unit
 //https://dribbble.com/shots/22396996-Balbalan-Live-Score-Football-App
 
 @Composable
-fun FullCard(modifier: Modifier = Modifier, data: MatchInfo, onClick :(Int, Int, Int) ->Unit) {
+fun FullCard(modifier: Modifier = Modifier, data: MatchInfo, onClick: (Int, Int, Int) -> Unit) {
     Card(
         modifier = modifier
             .fillMaxWidth()
             .padding(start = 10.dp, end = 10.dp, top = 15.dp)
             .clickable {
-                onClick(data.id,data.homeTeam.id,data.awayTeam.id)
+                onClick(data.id, data.homeTeam.id, data.awayTeam.id)
                 Log.d("FullCard", "FullCard: ${data.utcDate}")
             }, shape = RoundedCornerShape(10.dp),
 
@@ -153,7 +206,7 @@ fun RowScope.HomeTeamCard(modifier: Modifier = Modifier, data: MatchInfo) {
             modifier = modifier.padding(start = 15.dp, top = 10.dp, bottom = 10.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            CardImage(url = data.homeTeam.crest)
+            CardImage(url = data.homeTeam.crest ?: "")
             ClubTextName(teamName = data.homeTeam.shortName)
         }
     }
@@ -203,22 +256,31 @@ fun CardImage(modifier: Modifier = Modifier, url: String) {
         modifier = modifier,
         shape = CircleShape
     ) {
-        AsyncImage(
-            model = if (url.contains("svg")) {
-                ImageRequest.Builder(context)
-                    .data(url)
-                    .decoderFactory(SvgDecoder.Factory())
-                    .build()
-            } else {
-                url
-            },
-            modifier = modifier
-                .height(44.dp)
-                .width(44.dp)
-                .background(color = Color.LightGray)
-                .padding(6.dp),
-            contentDescription = "Team Description"
+        url.takeIf { it.isNotEmpty() }?.let {
+            AsyncImage(
+                model = if (url.contains("svg")) {
+                    ImageRequest.Builder(context)
+                        .data(url)
+                        .decoderFactory(SvgDecoder.Factory())
+                        .build()
+                } else {
+                    url
+                },
+                modifier = modifier
+                    .height(44.dp)
+                    .width(44.dp)
+                    .background(color = Color.LightGray)
+                    .padding(6.dp),
+                contentDescription = "Team Description"
+            )
+        } ?: Image(
+            painter = painterResource(id = R.drawable.premier_league_logo),
+            contentDescription = "Premier League Logo",
+            modifier = Modifier
+                .size(44.dp)
+                .padding(6.dp)
         )
+
     }
 }
 
@@ -262,8 +324,7 @@ fun TimeTextName(modifier: Modifier = Modifier, time: String) {
 @Preview(showSystemUi = true)
 @Composable
 private fun ShowLaligaScreenRoute() {
-    PremierLeagueScreenRoute(onItemClick = {
-            _, _, _ ->
+    PremierLeagueScreenRoute(onItemClick = { _, _, _ ->
     })
 }
 
