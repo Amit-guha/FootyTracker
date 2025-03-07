@@ -26,6 +26,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -51,6 +52,7 @@ import com.example.thefootballshow.ui.base.ShowLoading
 import com.example.thefootballshow.ui.base.UiState
 import com.example.thefootballshow.ui.base.UpcomingMatchesText
 import com.example.thefootballshow.ui.leagueSelector.LeagueSelectorItem
+import com.example.thefootballshow.ui.upcomingMatchDetails.MatchCard
 import com.example.thefootballshow.utils.extension.showLog
 import com.example.thefootballshow.utils.extension.toAmPmFormat
 import com.example.thefootballshow.utils.extension.toFriendlyDate
@@ -65,13 +67,17 @@ fun PremierLeagueScreenRoute(
     val matchUiState: UiState<List<MatchInfo>> by premierLeagueViewModel.matchUiState.collectAsStateWithLifecycle()
     val competitionList by premierLeagueViewModel.competitionList.collectAsStateWithLifecycle()
 
-    premierLeagueViewModel.getUpcomingMatches()
-    premierLeagueViewModel.getAllCompetitionInfo()
+/*    LaunchedEffect(Unit) {
+        premierLeagueViewModel.getUpcomingMatches()
+        premierLeagueViewModel.getAllCompetitionInfo()
+    }*/
 
     Log.d(
         "PremierLeagueScreenRoute",
         "PremierLeagueScreenRoute: ${"2023-02-05T20:00:00Z".toFriendlyDate()}"
     )
+    Log.d("PremierLeagueViewModel", "ViewModel instance: $premierLeagueViewModel")
+
 
     Column(modifier = modifier.fillMaxSize()) {
         // SetLeagueTitleText(leagueTitle = "Premier League")
@@ -157,13 +163,21 @@ fun UpcomingMatchListScreen(
 
 @Composable
 fun UpcomingMatchList(data: List<MatchInfo>, onItemClick: (Int, Int, Int) -> Unit) {
-    LazyColumn(modifier = Modifier.padding(bottom = 20.dp)) {
+    LazyRow(modifier = Modifier.padding(bottom = 20.dp)) {
         items(data) {
-            FullCard(data = it, onClick = { competitionId, homeTeamId, awayTeamId ->
+            MatchCard(data = it, onClick = { competitionId, homeTeamId, awayTeamId ->
                 onItemClick(competitionId, homeTeamId, awayTeamId)
             })
         }
     }
+
+    /*   LazyColumn(modifier = Modifier.padding(bottom = 20.dp)) {
+           items(data) {
+               FullCard(data = it, onClick = { competitionId, homeTeamId, awayTeamId ->
+                   onItemClick(competitionId, homeTeamId, awayTeamId)
+               })
+           }
+       }*/
 
 }
 
@@ -324,11 +338,12 @@ fun TimeTextName(modifier: Modifier = Modifier, time: String) {
 @Preview(showSystemUi = true)
 @Composable
 private fun ShowLaligaScreenRoute() {
-    PremierLeagueScreenRoute(onItemClick = { _, _, _ ->
-    })
+    /*  PremierLeagueScreenRoute(onItemClick = { _, _, _ ->
+      })*/
 }
 
 //{{url}}/v4/teams/81/matches?status=FINISHED&season=2023 -- last 5 matches
 //{{url}}/v4/matches/438848/head2head?limit=5  -- last five head to head
 //win, loss probability for each team
 //{{url}}/v4/matches/438848 --match info
+//https://gist.github.com/akeaswaran/b48b02f1c94f873c6655e7129910fc3b
