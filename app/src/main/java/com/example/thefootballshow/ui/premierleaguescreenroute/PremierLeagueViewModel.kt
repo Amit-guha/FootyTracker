@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.thefootballshow.data.model.Competitions
 import com.example.thefootballshow.data.model.MatchInfo
+import com.example.thefootballshow.data.model.TopScorer
 import com.example.thefootballshow.data.repository.PremierLeagueRepository
 import com.example.thefootballshow.ui.base.UiState
 import com.example.thefootballshow.utils.DispatcherProvider
@@ -32,6 +33,9 @@ class PremierLeagueViewModel @Inject constructor(
     private val _competitionList = MutableStateFlow<UiState<Competitions>>(UiState.Loading)
     val competitionList : StateFlow<UiState<Competitions>> = _competitionList
 
+    private val _topScorerList = MutableStateFlow<UiState<TopScorer>>(UiState.Loading)
+    val topScorerList : StateFlow<UiState<TopScorer>> = _topScorerList
+
     private var leagueId : Int = 2021
     private var previousSelection : Boolean = false
 
@@ -48,7 +52,8 @@ class PremierLeagueViewModel @Inject constructor(
             val date  = System.currentTimeMillis().toTodayAndTomorrow()
             val queryMap = mapOf(
                 "dateFrom" to date.first,
-                "dateTo" to "2025-03-08",
+                //"dateTo" to date.second,
+                "dateTo" to "2025-04-02",
                 "status" to MatchStatus.SCHEDULED.title,
                 "season" to "2023"
             )
@@ -58,6 +63,7 @@ class PremierLeagueViewModel @Inject constructor(
                     _matchUiState.value = UiState.Error(e.toString())
                 }
                 .collect {
+                    it.first().competition.code.let { code -> getTopScorers(code) }
                     _matchUiState.value = UiState.Success(it)
                 }
         }
@@ -103,6 +109,20 @@ class PremierLeagueViewModel @Inject constructor(
        // previousSelection = true
         getUpcomingMatches()
 
+    }
+
+    private fun getTopScorers(leagueCode : String, season: Int = 2024){
+        viewModelScope.launch(dispatcherProvider.main) {
+            repository.getTopScorers(leagueCode = leagueCode , season = season)
+                .flowOn(dispatcherProvider.io)
+                .catch {
+                    _topScorerList.value = UiState.Error(it.toString() ?: "Unknown error")
+                }
+                .collect {
+                    _topScorerList.value = UiState.Success(it)
+                }
+
+        }
     }
 
 }

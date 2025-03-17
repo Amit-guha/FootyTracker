@@ -26,7 +26,6 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -47,6 +46,7 @@ import coil.request.ImageRequest
 import com.example.thefootballshow.R
 import com.example.thefootballshow.data.model.Competitions
 import com.example.thefootballshow.data.model.MatchInfo
+import com.example.thefootballshow.data.model.TopScorer
 import com.example.thefootballshow.ui.base.SeeAllText
 import com.example.thefootballshow.ui.base.ShowLoading
 import com.example.thefootballshow.ui.base.UiState
@@ -66,6 +66,7 @@ fun PremierLeagueScreenRoute(
 
     val matchUiState: UiState<List<MatchInfo>> by premierLeagueViewModel.matchUiState.collectAsStateWithLifecycle()
     val competitionList by premierLeagueViewModel.competitionList.collectAsStateWithLifecycle()
+    val topScorerList by premierLeagueViewModel.topScorerList.collectAsStateWithLifecycle()
 
 /*    LaunchedEffect(Unit) {
         premierLeagueViewModel.getUpcomingMatches()
@@ -101,9 +102,33 @@ fun PremierLeagueScreenRoute(
             onItemClick = { competitionId, homeTeamId, awayTeamId ->
                 onItemClick(competitionId, homeTeamId, awayTeamId)
             })
+        Spacer(modifier = Modifier.height(5.dp))
+
+        TopScoreUI()
+        DisplayTopScorer(topScorerList)
 
     }
 
+}
+
+@Composable
+fun DisplayTopScorer(topScorerList: UiState<TopScorer>) {
+    when (topScorerList) {
+        is UiState.Error -> {
+
+        }
+        UiState.Loading -> {
+            ShowLoading()
+        }
+        is UiState.Success<*> -> {
+            val topScorerData = topScorerList.data as TopScorer
+            LazyColumn {
+                items(topScorerData.scorers) { scorer ->
+                    TopScorerItem(scorer = scorer)
+                }
+            }
+        }
+    }
 }
 
 
@@ -347,3 +372,4 @@ private fun ShowLaligaScreenRoute() {
 //win, loss probability for each team
 //{{url}}/v4/matches/438848 --match info
 //https://gist.github.com/akeaswaran/b48b02f1c94f873c6655e7129910fc3b
+//https://dribbble.com/shots/2354722-Day-019-Leaderboard
