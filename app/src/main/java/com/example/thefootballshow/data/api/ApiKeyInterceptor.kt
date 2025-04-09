@@ -1,4 +1,4 @@
-package com.example.thefootballshow.data.Api
+package com.example.thefootballshow.data.api
 
 import com.example.thefootballshow.di.ApiKey
 import okhttp3.Interceptor

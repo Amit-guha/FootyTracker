@@ -1,10 +1,11 @@
-package com.example.thefootballshow.data.Api
+package com.example.thefootballshow.data.api
 
 import com.example.thefootballshow.data.model.Competitions
 import com.example.thefootballshow.data.model.MatchInfo
 import com.example.thefootballshow.data.model.Standings
 import com.example.thefootballshow.data.model.TopScorer
 import com.example.thefootballshow.data.model.UpcomingMatches
+import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query
@@ -16,7 +17,7 @@ interface NetworkService {
     suspend fun getUpcomingMatchList(
         @Path("leagueId") year: Int,
         @QueryMap params: Map<String, String>
-    ): UpcomingMatches
+    ): Response<UpcomingMatches>
 
 
     @GET("v4/matches/{competitionId}")

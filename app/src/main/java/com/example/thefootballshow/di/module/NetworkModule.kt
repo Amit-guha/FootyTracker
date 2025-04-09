@@ -1,7 +1,7 @@
 package com.example.thefootballshow.di.module
 
-import com.example.thefootballshow.data.Api.ApiKeyInterceptor
-import com.example.thefootballshow.data.Api.NetworkService
+import com.example.thefootballshow.data.api.ApiKeyInterceptor
+import com.example.thefootballshow.data.api.NetworkService
 import com.example.thefootballshow.di.ApiKey
 import com.example.thefootballshow.di.Baseurl
 import com.example.thefootballshow.utils.AppConstant

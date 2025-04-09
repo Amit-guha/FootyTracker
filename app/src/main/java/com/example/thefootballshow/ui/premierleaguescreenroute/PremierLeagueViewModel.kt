@@ -53,7 +53,7 @@ class PremierLeagueViewModel @Inject constructor(
             val queryMap = mapOf(
                 "dateFrom" to date.first,
                 //"dateTo" to date.second,
-                "dateTo" to "2025-04-02",
+                "dateTo" to "2025-04-14",
                 "status" to MatchStatus.SCHEDULED.title,
                 "season" to "2023"
             )
@@ -62,10 +62,30 @@ class PremierLeagueViewModel @Inject constructor(
                 .catch { e ->
                     _matchUiState.value = UiState.Error(e.toString())
                 }
-                .collect {
+                .collect { uiState ->
+                    when (uiState) {
+                        is UiState.Loading -> {
+                            _matchUiState.value = UiState.Loading
+                        }
+
+                        is UiState.Success -> {
+                            val matchList = uiState.data
+                            // Example: Use the first match's competition code
+                            matchList.firstOrNull()?.competition?.code?.let { code ->
+                                getTopScorers(code)
+                            }
+                            _matchUiState.value = UiState.Success(matchList)
+                        }
+
+                        is UiState.Error -> {
+                            _matchUiState.value = UiState.Error(uiState.message)
+                        }
+                    }
+                }
+               /* .collect {
                     it.first().competition.code.let { code -> getTopScorers(code) }
                     _matchUiState.value = UiState.Success(it)
-                }
+                }*/
         }
     }
 

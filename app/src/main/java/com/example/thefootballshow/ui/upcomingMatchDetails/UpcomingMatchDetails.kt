@@ -47,6 +47,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.RectangleShape
@@ -624,7 +625,8 @@ fun RowScope.HomeTeamResultInfo(
             matchInfo.homeTeam.tla,
             style = TextStyle(
                 fontSize = 18.sp,
-                color = Color.White,
+                color = Color.Black,
+               // color = Color.White,
                 fontWeight = FontWeight.Medium,
                 textAlign = TextAlign.Start
             )
@@ -668,7 +670,8 @@ fun RowScope.AwayTeamResultInfo(
             matchInfo.homeTeam.tla ?: "",
             style = TextStyle(
                 fontSize = 18.sp,
-                color = Color.White,
+               // color = Color.White,
+                color = Color.Black,
                 fontWeight = FontWeight.Medium,
                 textAlign = TextAlign.Start
             )
@@ -827,7 +830,7 @@ fun LeagueTableSeasonSpinner(modifier: Modifier = Modifier) {
             }, verticalAlignment = Alignment.CenterVertically
     ) {
         Text(text = selectedItem)
-        Image(painter = painterResource(R.drawable.arrow_drop_down), contentDescription = "Spinner")
+        Image(painter = painterResource(R.drawable.arrow_drop_down), colorFilter = ColorFilter.tint(color = Color.Black), contentDescription = "Spinner")
         DropdownMenu(
             expanded = expanded,
             onDismissRequest = {
@@ -887,7 +890,6 @@ fun LeagueTitle(leagueName: String, url: String, modifier: Modifier = Modifier) 
                 .width(44.dp)
                 .height(44.dp)
                 .clip(CircleShape)
-                .background(Color.LightGray)
                 .loadAsyncImage(
                     url = url,
                     context = LocalContext.current,
@@ -921,19 +923,19 @@ fun StadiumAndGameWeekDetails(
         Text(
             text = stadiumName.ifEmpty { "" },
             fontSize = 20.sp,
-            color = Color.White,
+           // color = Color.White,
         )
 
         Text(
             text = if (stadiumName.isNotEmpty()) " | " else "",
             fontSize = 25.sp,
-            color = Color.White,
+           // color = Color.White,
         )
 
         Text(
             text = if (currentMatchDay.isNotEmpty()) "CurrentMatchDay $currentMatchDay" else "",
             fontSize = 20.sp,
-            color = Color.White,
+           // color = Color.White,
         )
 
     }
@@ -1119,7 +1121,7 @@ fun RowScope.MatchStartTimeInfo(modifier: Modifier = Modifier, data: MatchInfo) 
                 text = data.utcDate.takeIf { it.isNotEmpty() }?.toLocalTime() ?: "",
                 style = TextStyle(
                     fontSize = 20.sp,
-                    color = Color.White,
+                   // color = Color.White,
                     fontWeight = FontWeight.Medium
                 )
             )
@@ -1214,7 +1216,7 @@ fun HomeTeamVsAwayTeamWinningStatistics(
             text = nameOfTheTeam,
             style = TextStyle(
                 fontSize = 20.sp,
-                color = Color.White,
+               // color = Color.White,
                 fontWeight = FontWeight.Medium
             )
         )
@@ -1224,14 +1226,14 @@ fun HomeTeamVsAwayTeamWinningStatistics(
             modifier = modifier
                 .padding(start = 10.dp)
                 .size(20.dp)
-                .background(Color.DarkGray, shape = CircleShape),
+                .background(Color.LightGray, shape = CircleShape),
             contentAlignment = Alignment.Center
         ) {
             Text(
                 text = winCount,
                 style = TextStyle(
                     fontSize = 10.sp,
-                    color = Color.White,
+                    color = Color.Black,
                     fontWeight = FontWeight.Medium
                 )
             )

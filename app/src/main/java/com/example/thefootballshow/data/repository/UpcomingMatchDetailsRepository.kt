@@ -1,7 +1,7 @@
 package com.example.thefootballshow.data.repository
 
 import android.util.Log
-import com.example.thefootballshow.data.Api.NetworkService
+import com.example.thefootballshow.data.api.NetworkService
 import com.example.thefootballshow.data.model.MatchInfo
 import com.example.thefootballshow.data.model.Standings
 import dagger.hilt.android.scopes.ViewModelScoped

@@ -30,8 +30,12 @@ import com.example.thefootballshow.utils.extension.loadAsyncImage
 @Composable
 fun TeamStandingInLeague(table: Table, modifier: Modifier = Modifier) {
     val backgroundColor = when (table.position) {
-        -1 -> colorResource(R.color.charleston_green)
-        else -> colorResource(R.color.eerie_black)
+        -1 -> colorResource(R.color.white)
+        else -> colorResource(R.color.white)
+
+        //Dark
+//        -1 -> colorResource(R.color.charleston_green)
+//        else -> colorResource(R.color.eerie_black)
     }
 
     Row(
@@ -52,7 +56,8 @@ fun TeamStandingInLeague(table: Table, modifier: Modifier = Modifier) {
             maxLines = 1,
             style = TextStyle(
                 fontSize = 18.sp,
-                color = Color.White,
+                color = Color.Black,
+              //  color = Color.White,
                 textAlign = TextAlign.Center
             )
         )
@@ -89,7 +94,8 @@ fun TeamStandingInLeague(table: Table, modifier: Modifier = Modifier) {
             maxLines = 1,
             style = TextStyle(
                 fontSize = 18.sp,
-                color = Color.White,
+                color = Color.Black,
+               // color = Color.White,
                 textAlign = TextAlign.Center
             )
         )
@@ -107,7 +113,8 @@ fun TeamStandingInLeague(table: Table, modifier: Modifier = Modifier) {
                 .weight(0.1f),
             style = TextStyle(
                 fontSize = 18.sp,
-                color = Color.White,
+                color = Color.Black,
+               // color = Color.White,
                 textAlign = TextAlign.Center
             )
         )
@@ -125,7 +132,8 @@ fun TeamStandingInLeague(table: Table, modifier: Modifier = Modifier) {
                 .weight(0.1f),
             style = TextStyle(
                 fontSize = 18.sp,
-                color = Color.White,
+                color = Color.Black,
+              //  color = Color.White,
                 textAlign = TextAlign.Center
             )
         )
@@ -143,7 +151,8 @@ fun TeamStandingInLeague(table: Table, modifier: Modifier = Modifier) {
                 .weight(0.1f),
             style = TextStyle(
                 fontSize = 18.sp,
-                color = Color.White,
+                color = Color.Black,
+              //  color = Color.White,
                 textAlign = TextAlign.Center
             )
         )
@@ -161,7 +170,8 @@ fun TeamStandingInLeague(table: Table, modifier: Modifier = Modifier) {
                 .weight(0.1f),
             style = TextStyle(
                 fontSize = 18.sp,
-                color = Color.White,
+                color = Color.Black,
+               // color = Color.White,
                 textAlign = TextAlign.Center
             )
         )
@@ -218,7 +228,8 @@ fun TeamStandingInLeague(table: Table, modifier: Modifier = Modifier) {
                 .weight(0.1f),
             style = TextStyle(
                 fontSize = 18.sp,
-                color = Color.White,
+                color = Color.Black,
+              //  color = Color.White,
                 textAlign = TextAlign.Center
             )
         )
@@ -237,7 +248,8 @@ fun TeamStandingInLeague(table: Table, modifier: Modifier = Modifier) {
                 .weight(0.1f),
             style = TextStyle(
                 fontSize = 18.sp,
-                color = Color.White,
+                color = Color.Black,
+               // color = Color.White,
                 textAlign = TextAlign.Center
             )
         )
