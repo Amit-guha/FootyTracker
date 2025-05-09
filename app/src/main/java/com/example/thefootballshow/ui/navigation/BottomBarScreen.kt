@@ -20,7 +20,10 @@ sealed class BottomBarScreen(
 
     data object PremierLeagueUpcomingMatchDetail : BottomBarScreen
         ("PL_UPCOMING_MATCH_DETAIL", "PL_UPCOMING_MATCH_DETAIL", R.drawable.premier)
+
+    data object AllMatchesScreen : BottomBarScreen("ALL_MATCHES", "ALL_MATCHES", R.drawable.premier)
 }
+
 
 
 //PL - Premier league

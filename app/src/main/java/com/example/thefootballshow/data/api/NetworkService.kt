@@ -41,7 +41,7 @@ interface NetworkService {
     @GET("v4/competitions")
     suspend fun getAllCompetitions(
         @Query("areas") areas: String
-    ): Competitions
+    ): Response<Competitions>
 
     @GET("v4/competitions/{leagueCode}/scorers")
     suspend fun getTopScorer(

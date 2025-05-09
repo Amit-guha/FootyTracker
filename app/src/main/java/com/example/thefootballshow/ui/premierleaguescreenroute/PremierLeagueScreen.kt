@@ -1,6 +1,7 @@
 package com.example.thefootballshow.ui.premierleaguescreenroute
 
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -53,6 +54,8 @@ import com.example.thefootballshow.ui.base.UiState
 import com.example.thefootballshow.ui.base.UpcomingMatchesText
 import com.example.thefootballshow.ui.leagueSelector.LeagueSelectorItem
 import com.example.thefootballshow.ui.upcomingMatchDetails.MatchCard
+import com.example.thefootballshow.utils.MatchNavigationParams
+import com.example.thefootballshow.utils.enumUtills.MatchTypeEnum
 import com.example.thefootballshow.utils.extension.showLog
 import com.example.thefootballshow.utils.extension.toAmPmFormat
 import com.example.thefootballshow.utils.extension.toFriendlyDate
@@ -61,17 +64,17 @@ import com.example.thefootballshow.utils.extension.toFriendlyDate
 fun PremierLeagueScreenRoute(
     modifier: Modifier = Modifier,
     premierLeagueViewModel: PremierLeagueViewModel = hiltViewModel(),
-    onItemClick: (Int, Int, Int) -> Unit
+    onItemClick: (MatchNavigationParams) -> Unit
 ) {
 
     val matchUiState: UiState<List<MatchInfo>> by premierLeagueViewModel.matchUiState.collectAsStateWithLifecycle()
     val competitionList by premierLeagueViewModel.competitionList.collectAsStateWithLifecycle()
     val topScorerList by premierLeagueViewModel.topScorerList.collectAsStateWithLifecycle()
 
-/*    LaunchedEffect(Unit) {
-        premierLeagueViewModel.getUpcomingMatches()
-        premierLeagueViewModel.getAllCompetitionInfo()
-    }*/
+    /*    LaunchedEffect(Unit) {
+            premierLeagueViewModel.getUpcomingMatches()
+            premierLeagueViewModel.getAllCompetitionInfo()
+        }*/
 
     Log.d(
         "PremierLeagueScreenRoute",
@@ -94,13 +97,27 @@ fun PremierLeagueScreenRoute(
             horizontalArrangement = Arrangement.Absolute.SpaceBetween
         ) {
             UpcomingMatchesText()
-            SeeAllText {}
+            SeeAllText {
+                onItemClick(
+                    MatchNavigationParams(
+                        null,
+                        null,
+                        null,
+                        MatchTypeEnum.ALL_MATCH_ENUM
+                    )
+                )
+            }
         }
         Spacer(modifier = modifier.height(5.dp))
         UpcomingMatchListScreen(
             matchUiState,
             onItemClick = { competitionId, homeTeamId, awayTeamId ->
-                onItemClick(competitionId, homeTeamId, awayTeamId)
+                onItemClick(
+                    MatchNavigationParams(
+                        competitionId, homeTeamId, awayTeamId,
+                        MatchTypeEnum.MATCH_DETAILS_ENUM
+                    )
+                )
             })
         Spacer(modifier = Modifier.height(5.dp))
 
@@ -117,9 +134,11 @@ fun DisplayTopScorer(topScorerList: UiState<TopScorer>) {
         is UiState.Error -> {
 
         }
+
         UiState.Loading -> {
             ShowLoading()
         }
+
         is UiState.Success<*> -> {
             val topScorerData = topScorerList.data as TopScorer
             LazyColumn {
@@ -139,7 +158,8 @@ fun DisplayLeagueSelection(
 ) {
     when (competitionList) {
         is UiState.Error -> {
-
+            val context = LocalContext.current
+            Toast.makeText(context, competitionList.message, Toast.LENGTH_SHORT).show()
         }
 
         UiState.Loading -> {
@@ -148,8 +168,8 @@ fun DisplayLeagueSelection(
 
         is UiState.Success -> {
             val competitions = competitionList.data.competitions
-            val context = LocalContext.current
-            context.showLog(message = competitions.size.toString())
+            /*      val context = LocalContext.current
+                  context.showLog(message = competitions.size.toString())*/
             LazyRow(modifier = Modifier.padding(start = 8.dp)) {
                 items(competitions) {
                     LeagueSelectorItem(areaCompetition = it) { leagueId ->
@@ -187,7 +207,7 @@ fun UpcomingMatchListScreen(
 
 
 @Composable
-fun UpcomingMatchList(data: List<MatchInfo>, onItemClick: (Int, Int, Int) -> Unit) {
+private fun UpcomingMatchList(data: List<MatchInfo>, onItemClick: (Int, Int, Int) -> Unit) {
     LazyRow(modifier = Modifier.padding(bottom = 20.dp)) {
         items(data) {
             MatchCard(data = it, onClick = { competitionId, homeTeamId, awayTeamId ->

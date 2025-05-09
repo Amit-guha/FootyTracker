@@ -9,7 +9,9 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.example.thefootballshow.ui.laligascreenroute.LaligaScreenRoute
 import com.example.thefootballshow.ui.premierleaguescreenroute.PremierLeagueScreenRoute
+import com.example.thefootballshow.ui.upcomingMatchDetails.MatchList
 import com.example.thefootballshow.ui.upcomingMatchDetails.UpcomingMatchDetailRouteScreen
+import com.example.thefootballshow.utils.enumUtills.MatchTypeEnum
 
 @Composable
 fun BottomNavGraph(navController: NavHostController) {
@@ -23,10 +25,22 @@ fun BottomNavGraph(navController: NavHostController) {
         }
 
         composable(route = BottomBarScreen.PremierLeagueScreen.route) {
-            PremierLeagueScreenRoute(onItemClick = {competitionId,homeTeamId,awayTeamId ->
-                navController.navigate("${BottomBarScreen.PremierLeagueUpcomingMatchDetail.route}/${competitionId}/${homeTeamId}/${awayTeamId}")
-                Log.d("UpcomingMatchList", "UpcomingMatchList: Clicked")
+            PremierLeagueScreenRoute(onItemClick = { matchNavParams->
+                when(matchNavParams.matchEnum){
+                    MatchTypeEnum.MATCH_DETAILS_ENUM -> {
+                        navController.navigate("${BottomBarScreen.PremierLeagueUpcomingMatchDetail.route}/${matchNavParams.competitionId}/${matchNavParams.homeTeamId}/${matchNavParams.awayTeamId}")
+                        Log.d("UpcomingMatchList", "UpcomingMatchList: Clicked")
+                    }
+                    MatchTypeEnum.ALL_MATCH_ENUM -> {
+                        navController.navigate(BottomBarScreen.AllMatchesScreen.route)
+                    }
+                }
+
             })
+        }
+
+        composable(route = BottomBarScreen.AllMatchesScreen.route) {
+            MatchList()
         }
 
         composable(route = BottomBarScreen.SerieAScreen.route) {
@@ -37,26 +51,33 @@ fun BottomNavGraph(navController: NavHostController) {
 
         }
 
-        composable(route = "${BottomBarScreen.PremierLeagueUpcomingMatchDetail.route}/{competitionId}/{homeTeamId}/{awayTeamId}",
-            arguments = listOf(navArgument(
-                "competitionId"
-            ){
-                type = NavType.IntType
-            },
-                navArgument("homeTeamId"){
+        composable(
+            route = "${BottomBarScreen.PremierLeagueUpcomingMatchDetail.route}/{competitionId}/{homeTeamId}/{awayTeamId}",
+            arguments = listOf(
+                navArgument(
+                    "competitionId"
+                ) {
                     type = NavType.IntType
                 },
-                navArgument("awayTeamId"){
+                navArgument("homeTeamId") {
+                    type = NavType.IntType
+                },
+                navArgument("awayTeamId") {
                     type = NavType.IntType
                 }
             )
         ) {
-
-            val competitionId = it.arguments?.getInt("competitionId")?:-1
-            val homeTeamId = it.arguments?.getInt("homeTeamId")?:-1
-            val awayTeamId = it.arguments?.getInt("awayTeamId")?:-1
-            Log.d("Argument : ","$competitionId $homeTeamId $awayTeamId")
-            UpcomingMatchDetailRouteScreen(competitionId = competitionId, homeTeamId = homeTeamId, awayTeamId = awayTeamId)
+            val competitionId = it.arguments?.getInt("competitionId") ?: -1
+            val homeTeamId = it.arguments?.getInt("homeTeamId") ?: -1
+            val awayTeamId = it.arguments?.getInt("awayTeamId") ?: -1
+            Log.d("Argument : ", "$competitionId $homeTeamId $awayTeamId")
+            UpcomingMatchDetailRouteScreen(
+                competitionId = competitionId,
+                homeTeamId = homeTeamId,
+                awayTeamId = awayTeamId
+            ) {
+                navController.popBackStack()
+            }
         }
 
     }

@@ -16,7 +16,8 @@ fun UpcomingMatchDetailRouteScreen(
     competitionId: Int,
     homeTeamId: Int,
     awayTeamId: Int,
-    matchDetailViewModel : UpcomingMatchDetailsViewModel = hiltViewModel()
+    matchDetailViewModel: UpcomingMatchDetailsViewModel = hiltViewModel(),
+    onClick: () -> Unit
 ) {
     matchDetailViewModel.apply {
         updateCompetitionId(competitionId)
@@ -24,21 +25,29 @@ fun UpcomingMatchDetailRouteScreen(
         updateAwayTeamId(awayTeamId)
     }
 
-    CenterAlignedTopAppBarExample(homeTeam = "Arsenal", awayTeam ="ManCity", matchDetailViewModel) {
-
+    CenterAlignedTopAppBarExample(
+        homeTeam = "Arsenal",
+        awayTeam = "ManCity",
+        matchDetailViewModel
+    ) {
+        onClick()
     }
 }
 
 
 @Composable
 fun DisplayMatchDetails(matchUiState: UiState<MatchInfo>) {
-    when(matchUiState){
-        is UiState.Error ->{}
+    when (matchUiState) {
+        is UiState.Error -> {}
         UiState.Loading -> {
             ShowLoading()
         }
+
         is UiState.Success -> {
-            LeagueTitle(leagueName =  matchUiState.data.competition.name, url = matchUiState.data.competition.emblem)
+            LeagueTitle(
+                leagueName = matchUiState.data.competition.name,
+                url = matchUiState.data.competition.emblem
+            )
             matchUiState.data.run {
                 val stadiumName = venue?.takeIf { it.isNotEmpty() } ?: ""
                 val currentMatchDay = matchday.toString() ?: ""
@@ -60,7 +69,7 @@ fun DisplayMatchDetails(matchUiState: UiState<MatchInfo>) {
 @Composable
 @Preview
 private fun ShowUpcomingMatchDetailRouteScreen() {
-    UpcomingMatchDetailRouteScreen(competitionId = 1, homeTeamId = 1, awayTeamId = 1)
-
+    UpcomingMatchDetailRouteScreen(competitionId = 1, homeTeamId = 1, awayTeamId = 1) {
 
     }
+}

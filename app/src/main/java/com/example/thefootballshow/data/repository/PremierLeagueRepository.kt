@@ -30,10 +30,11 @@ class PremierLeagueRepository @Inject constructor(
         return flow { emit(handleApiResponse(response) { it.matches }) }
     }
 
-    suspend fun getAllCompetition(areas: String): Flow<Competitions> {
+    suspend fun getAllCompetition(areas: String): Flow<UiState<Competitions>> {
         val allCompetitionInfo = networkService.getAllCompetitions(areas)
         return flow {
-            emit(allCompetitionInfo)
+            emit(handleApiResponse(allCompetitionInfo))
+          //  emit(allCompetitionInfo)
         }
     }
 
