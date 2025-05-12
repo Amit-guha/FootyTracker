@@ -39,6 +39,7 @@ class PremierLeagueViewModel @Inject constructor(
     private var previousSelection: Boolean = false
 
     init {
+        logger.d("league id----", leagueId.toString())
         getUpcomingMatches()
         getAllCompetitionInfo()
     }
@@ -50,8 +51,8 @@ class PremierLeagueViewModel @Inject constructor(
             //2018 -->euro
             val date = System.currentTimeMillis().toTodayAndTomorrow()
             val queryMap = mapOf(
-                "dateFrom" to date.first,
-                "dateTo" to date.second,
+                "dateFrom" to "2025-05-16",
+                "dateTo" to "2025-05-18",
                 //"dateTo" to "2025-04-14",
                 "status" to MatchStatus.SCHEDULED.title,
                 "season" to "2023"
@@ -166,6 +167,10 @@ class PremierLeagueViewModel @Inject constructor(
                 }
 
         }
+    }
+
+    fun getLeagueId() : Int{
+        return leagueId
     }
 
 }

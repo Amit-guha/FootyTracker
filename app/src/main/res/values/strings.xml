@@ -11,4 +11,6 @@
     <string name="home">HOME</string>
     <string name="away">AWAY</string>
     <string name="top_scorers">Top Scorers</string>
+    <string name="upcoming_match">Upcoming Match</string>
+    <string name="up_coming_match">Up-coming Match</string>
 </resources>

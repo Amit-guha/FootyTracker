@@ -9,7 +9,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.example.thefootballshow.ui.laligascreenroute.LaligaScreenRoute
 import com.example.thefootballshow.ui.premierleaguescreenroute.PremierLeagueScreenRoute
-import com.example.thefootballshow.ui.upcomingMatchDetails.MatchList
+import com.example.thefootballshow.ui.upcomingMatch.BuildUpcomingMatchesUI
 import com.example.thefootballshow.ui.upcomingMatchDetails.UpcomingMatchDetailRouteScreen
 import com.example.thefootballshow.utils.enumUtills.MatchTypeEnum
 
@@ -40,7 +40,7 @@ fun BottomNavGraph(navController: NavHostController) {
         }
 
         composable(route = BottomBarScreen.AllMatchesScreen.route) {
-            MatchList()
+            BuildUpcomingMatchesUI()
         }
 
         composable(route = BottomBarScreen.SerieAScreen.route) {

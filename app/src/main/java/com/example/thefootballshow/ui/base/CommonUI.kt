@@ -53,9 +53,9 @@ fun SetLeagueTitleText(modifier: Modifier = Modifier, leagueTitle: String) {
 }
 
 @Composable
-fun UpcomingMatchesText(modifier: Modifier = Modifier) {
+fun UpcomingMatchesText(modifier: Modifier = Modifier, incomingText : String = stringResource(R.string.upcoming_match)) {
     Text(
-        text = "Upcoming Match",
+        text = incomingText,
         modifier = modifier
             .wrapContentSize(align = Alignment.TopStart)
             .padding(start = 10.dp),

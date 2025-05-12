@@ -6,5 +6,6 @@ data class MatchNavigationParams(
     val competitionId: Int?,
     val homeTeamId: Int?,
     val awayTeamId: Int?,
-    val matchEnum : MatchTypeEnum
+    val matchEnum : MatchTypeEnum,
+    var leagueId : Int? = null
 )
