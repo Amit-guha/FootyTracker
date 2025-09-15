@@ -51,8 +51,8 @@ class PremierLeagueViewModel @Inject constructor(
             //2018 -->euro
             val date = System.currentTimeMillis().toTodayAndTomorrow()
             val queryMap = mapOf(
-                "dateFrom" to "2025-05-16",
-                "dateTo" to "2025-05-18",
+                "dateFrom" to "2025-09-12",
+                "dateTo" to "2025-09-14",
                 //"dateTo" to "2025-04-14",
                 "status" to MatchStatus.SCHEDULED.title,
                 "season" to "2023"
@@ -176,6 +176,10 @@ class PremierLeagueViewModel @Inject constructor(
 }
 
 
-
-
-
+//{{url}}/v4/matches - this will give live matches as well as last matches with different league
+//{{url}}/v4/matches?status=IN_PLAY -- give me live matches
+//{{url}}/v4/matches?status=FINISHED -- finish matches
+//mixoya6049@namestal.com
+//Mixo1234@ -- uizard
+//visily - 12345678
+// -- wipato4141@poesd.com

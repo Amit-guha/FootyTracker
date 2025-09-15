@@ -1,0 +1,21 @@
+GET https://api.football-data.org/v4/areas/
+
+###
+GET https://api.football-data.org/v4/areas/2224
+X-Auth-Token: 275ee16f2fa945148e248dc2074dab61
+
+###
+GET https://api.football-data.org/v4/competitions
+X-Auth-Token: 275ee16f2fa945148e248dc2074dab61
+
+###
+GET https://api.football-data.org/v4/competitions
+X-Auth-Token: 275ee16f2fa945148e248dc2074dab61
+
+###repap62700@discrip.com
+GET https://v3.football.api-sports.io/leagues
+x-apisports-key: e88d78e200481404ef160340f03f9664
+
+###
+GET https://v3.football.api-sports.io/fixtures?league=140&season=2024&status=FT
+x-apisports-key: e88d78e200481404ef160340f03f9664

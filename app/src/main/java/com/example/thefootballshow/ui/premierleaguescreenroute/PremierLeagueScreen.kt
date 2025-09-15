@@ -33,6 +33,7 @@ import com.example.thefootballshow.utils.MatchNavigationParams
 import com.example.thefootballshow.utils.enumUtills.MatchTypeEnum
 import com.example.thefootballshow.utils.extension.showLog
 import com.example.thefootballshow.utils.extension.toFriendlyDate
+import java.lang.reflect.Proxy
 
 @Composable
 fun PremierLeagueScreenRoute(
@@ -49,7 +50,6 @@ fun PremierLeagueScreenRoute(
             premierLeagueViewModel.getUpcomingMatches()
             premierLeagueViewModel.getAllCompetitionInfo()
         }*/
-
     Log.d(
         "PremierLeagueScreenRoute",
         "PremierLeagueScreenRoute: ${"2023-02-05T20:00:00Z".toFriendlyDate()}"
