@@ -3,12 +3,12 @@ plugins {
     alias(libs.plugins.jetbrainsKotlinAndroid)
     alias(libs.plugins.hilt)
     alias(libs.plugins.ksp)
-    //alias(libs.plugins.kotlinCompose)
+    alias(libs.plugins.compose.compiler)
 }
 
 android {
     namespace = "com.example.thefootballshow"
-    compileSdk = 34
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.example.thefootballshow"
@@ -37,7 +37,7 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
     kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_17.toString()
+        jvmTarget = "17"
     }
     buildFeatures {
         compose = true
@@ -91,4 +91,10 @@ dependencies {
     implementation(libs.retrofit.core)
     implementation(libs.coil.compose)
     implementation(libs.coil.svg)
+
+    implementation(libs.room.runtime)
+    implementation(libs.room.ktx)
+    ksp(libs.room.compiler)
+
+
 }

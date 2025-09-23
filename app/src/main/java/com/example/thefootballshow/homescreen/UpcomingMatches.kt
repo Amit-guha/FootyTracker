@@ -1,14 +1,15 @@
 package com.example.thefootballshow.homescreen
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
@@ -40,49 +41,50 @@ import com.example.thefootballshow.utils.extension.TextSizes
 import com.example.thefootballshow.utils.extension.TextSizes.Small
 import com.example.thefootballshow.utils.extension.TextSizes.Sp_14
 
+
 @Composable
-fun MatchCard(modifier: Modifier = Modifier) {
+fun UpcomingMatchList() {
+    LazyColumn(
+        contentPadding = PaddingValues(PaddingMedium),
+        verticalArrangement = Arrangement.spacedBy(PaddingMedium)
+    ) {
+        items(2) {
+            UpcomingMatchCard()
+        }
+    }
+}
+
+@Composable
+fun UpcomingMatchCard() {
     Card(
         modifier = Modifier,
-        shape = RoundedCornerShape(
-            Dimens.BorderMedium,
-        ),
-        colors = CardDefaults.cardColors(colorResource(R.color.ghost_white)),
+        shape = RoundedCornerShape(Dimens.BorderMedium),
+        colors = CardDefaults.cardColors(colorResource(R.color.light_blue)),
         elevation = CardDefaults.cardElevation(2.dp)
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(
-                    PaddingMedium
-                )
+                .padding(PaddingMedium)
         ) {
             Row(
                 horizontalArrangement = Arrangement.SpaceBetween,
-                modifier = Modifier
-                    .fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.Top,
             ) {
+                // Match Time
                 Text(
-                    modifier =
-                        Modifier
-                            .background(
-                                colorResource(R.color.tulip),
-                                shape = RoundedCornerShape(16.dp)
-                            )
-                            .padding(5.dp),
-                    text = "Live",
+                    text = "20:45",
                     style = TextStyle(
                         fontFamily = Roboto,
-                        fontWeight = FontWeight.W400,
+                        fontWeight = FontWeight.Medium,
                         fontSize = Small,
                         textAlign = TextAlign.Center
                     )
                 )
 
-
+                //League Title
                 Text(
-                    modifier = Modifier.padding(4.dp),
                     text = "Premier League",
                     style = TextStyle(
                         fontFamily = Roboto,
@@ -150,12 +152,25 @@ fun MatchCard(modifier: Modifier = Modifier) {
                     ) {
                         Text(
                             modifier = Modifier.padding(4.dp),
-                            text = "2 - 1",
-                            color = androidx.compose.ui.graphics.Color.Black,
+                            text = stringResource(R.string.vs),
+                            color = colorResource(R.color.black_coral),
                             style = TextStyle(
                                 fontFamily = Oswald,
-                                fontWeight = FontWeight.W800,
-                                fontSize = TextSizes.ExtraLarge,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = TextSizes.Large,
+                                textAlign = TextAlign.Center
+                            ),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+
+                        Text(
+                            text = stringResource(R.string.upcoming),
+                            color = colorResource(R.color.space),
+                            style = TextStyle(
+                                fontFamily = Roboto,
+                                fontWeight = FontWeight.Normal,
+                                fontSize = Small,
                                 textAlign = TextAlign.Center
                             ),
                             maxLines = 1,
@@ -186,13 +201,13 @@ fun MatchCard(modifier: Modifier = Modifier) {
                         modifier = Modifier
                             .size(ImageMedium)
                             .clip(CircleShape)
-
                     )
 
                     Text(
                         modifier = Modifier.padding(4.dp),
                         text = "Man City",
-                        color = androidx.compose.ui.graphics.Color.Black,
+                        color =
+                            Color.Black,
                         style = TextStyle(
                             fontFamily = Roboto,
                             fontWeight = FontWeight.SemiBold,
@@ -244,11 +259,10 @@ fun MatchCard(modifier: Modifier = Modifier) {
 
 
     }
-
 }
 
-@Composable
 @Preview(showBackground = true)
-fun MatchCardPreview() {
-    MatchCard()
+@Composable
+fun UpcomingMatchCardPreview() {
+    UpcomingMatchCard()
 }

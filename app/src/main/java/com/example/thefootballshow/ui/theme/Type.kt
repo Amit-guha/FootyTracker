@@ -43,4 +43,6 @@ val Oswald = FontFamily(
 )
 val Roboto = FontFamily(
     Font(R.font.roboto_regular, FontWeight.W400),
+    Font(R.font.roboto_medium, FontWeight.Medium),
+    Font(R.font.roboto_semibold, FontWeight.SemiBold)
 )

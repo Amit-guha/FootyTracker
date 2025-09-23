@@ -19,6 +19,7 @@
     <color name="chinese_blue">#3C599D</color>
     <color name="asparagus">#8AB370</color>
     <color name="moonstone">#2DA5C6</color>
+    <color name="outer_black">#424856</color>
     
 
 
@@ -38,7 +39,14 @@
     <color name="eerie_black">#1C1D1D</color>
     <color name="eerie_black_2">#1A1C1E</color>
     <color name="ultramarine_blue">#4856FF</color>
-    <color name="alice_blue">#F3F4F6FF</color>
+    <color name="alice_blue">#F3F4F6</color>
+    <color name="tulip">#FF8386</color>
+    <color name="platinum">#DEE1E6</color>
+    <color name="cornflower_Blue">#7494FF</color>
+    <color name="light_blue">#F3FFFF</color>
+    <color name="black_coral">#565D6D</color>
+    <color name="space">#424856 </color>
+    <color name="ghost_white">#F8F9FA</color>
 
 
     2077 - ucl,

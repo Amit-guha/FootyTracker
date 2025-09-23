@@ -1,14 +1,13 @@
 package com.example.thefootballshow
 
-import android.graphics.Color
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -25,10 +24,13 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.thefootballshow.homescreen.HomeScreen
 import com.example.thefootballshow.ui.commonui.SystemBarColor
 import com.example.thefootballshow.ui.theme.Oswald
 import com.example.thefootballshow.ui.theme.TheFootballShowTheme
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class HomeActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -59,7 +61,9 @@ class HomeActivity : ComponentActivity() {
                             actions = {
                                 IconButton(onClick = { }) {
                                     Icon(
-                                        modifier = Modifier.padding(end = 25.dp),
+                                        modifier = Modifier.
+                                            size(48.dp).
+                                        padding(end = 25.dp),
                                         painter = painterResource(R.drawable.ic_bell),
                                         contentDescription = "Localized description",
                                         tint = MaterialTheme.colorScheme.primary
@@ -82,7 +86,7 @@ class HomeActivity : ComponentActivity() {
                             thickness = 1.dp,
                             modifier = Modifier
                         )
-
+                        HomeScreen()
                     }
                 }
             }

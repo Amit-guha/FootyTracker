@@ -12,7 +12,11 @@
     <string name="away">AWAY</string>
     <string name="top_scorers">Top Scorers</string>
     <string name="upcoming_match">Upcoming Match</string>
+    <string name="upcoming_matches">Upcoming Matches</string>
     <string name="up_coming_match">Up-coming Match</string>
     <string name="title_activity_home">HomeActivity</string>
     <string name="live_matches">Live Matches</string>
+    <string name="details">Details</string>
+    <string name="upcoming">Upcoming</string>
+    <string name="vs">Vs</string>
 </resources>
