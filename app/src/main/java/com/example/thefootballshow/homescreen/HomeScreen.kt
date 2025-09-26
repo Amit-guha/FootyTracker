@@ -1,5 +1,4 @@
 package com.example.thefootballshow.homescreen
-
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -12,6 +11,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.thefootballshow.R
 import com.example.thefootballshow.data.model.AreaCompetition
+import com.example.thefootballshow.data.model.UpcomingMatches
 import com.example.thefootballshow.ui.base.UiState
 import com.example.thefootballshow.ui.commonui.MatchTitle
 import com.example.thefootballshow.utils.extension.Dimens
@@ -22,6 +22,8 @@ fun HomeScreen(
     viewModel: HomeViewModel = hiltViewModel<HomeViewModel>()
 ) {
     val topLeagues: UiState<List<AreaCompetition>> by viewModel.topLeagues.collectAsStateWithLifecycle()
+    val upComingMatches: UiState<UpcomingMatches> by viewModel.upcomingMatches.collectAsStateWithLifecycle()
+
 
     Column(modifier = Modifier.fillMaxSize()) {
         TopLeagues(topLeagues){
@@ -39,7 +41,7 @@ fun HomeScreen(
                 top = Dimens.dp_14
             )
         )
-        UpcomingMatchList()
+        UpcomingMatchList(upComingMatches)
     }
 
 }

@@ -13,7 +13,7 @@ fun LiveMatches() {
         contentPadding = PaddingValues(PaddingMedium),
         verticalArrangement = Arrangement.spacedBy(PaddingMedium)
     ) {
-        items(2) { index ->
+        items(1) { index ->
             MatchCard()
         }
     }

@@ -128,7 +128,7 @@ fun MatchCard(modifier: Modifier = Modifier) {
                     Text(
                         modifier = Modifier.padding(4.dp),
                         text = "Man City",
-                        color = androidx.compose.ui.graphics.Color.Black,
+                        color = Color.Black,
                         style = TextStyle(
                             fontFamily = Roboto,
                             fontWeight = FontWeight.SemiBold,
@@ -151,7 +151,7 @@ fun MatchCard(modifier: Modifier = Modifier) {
                         Text(
                             modifier = Modifier.padding(4.dp),
                             text = "2 - 1",
-                            color = androidx.compose.ui.graphics.Color.Black,
+                            color = Color.Black,
                             style = TextStyle(
                                 fontFamily = Oswald,
                                 fontWeight = FontWeight.W800,

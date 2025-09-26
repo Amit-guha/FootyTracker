@@ -5,7 +5,6 @@ import com.example.thefootballshow.data.model.MatchInfo
 import com.example.thefootballshow.data.model.Standings
 import com.example.thefootballshow.data.model.TopScorer
 import com.example.thefootballshow.data.model.UpcomingMatches
-import com.example.thefootballshow.database.CompetitionEntity
 import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Path
@@ -51,5 +50,10 @@ interface NetworkService {
 
     @GET("v4/competitions")
     suspend fun getTopLeague() : Response<Competitions>
+
+    @GET("v4/matches")
+    suspend fun getMatches(
+        @QueryMap params: Map<String, String>
+    ) : Response<UpcomingMatches>
 
 }

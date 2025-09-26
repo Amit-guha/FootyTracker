@@ -1,5 +1,4 @@
 package com.example.thefootballshow.homescreen
-
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -10,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
@@ -21,6 +21,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -31,35 +32,78 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.thefootballshow.R
+import com.example.thefootballshow.data.model.MatchInfo
+import com.example.thefootballshow.data.model.UpcomingMatches
+import com.example.thefootballshow.ui.base.ShowLoading
+import com.example.thefootballshow.ui.base.UiState
 import com.example.thefootballshow.ui.theme.Oswald
 import com.example.thefootballshow.ui.theme.Roboto
 import com.example.thefootballshow.utils.extension.Dimens
 import com.example.thefootballshow.utils.extension.Dimens.ImageMedium
 import com.example.thefootballshow.utils.extension.Dimens.PaddingMedium
+import com.example.thefootballshow.utils.extension.Dimens.PaddingSmall
 import com.example.thefootballshow.utils.extension.Dimens.dp_20
 import com.example.thefootballshow.utils.extension.TextSizes
 import com.example.thefootballshow.utils.extension.TextSizes.Small
 import com.example.thefootballshow.utils.extension.TextSizes.Sp_14
+import com.example.thefootballshow.utils.extension.loadAsyncImage
+import com.example.thefootballshow.utils.extension.toFriendlyDate
 
 
 @Composable
-fun UpcomingMatchList() {
-    LazyColumn(
-        contentPadding = PaddingValues(PaddingMedium),
-        verticalArrangement = Arrangement.spacedBy(PaddingMedium)
-    ) {
-        items(2) {
-            UpcomingMatchCard()
+fun UpcomingMatchList(upComingMatches: UiState<UpcomingMatches>) {
+    when (upComingMatches) {
+        is UiState.Error -> {
+            Text(upComingMatches.message, color = Color.Red)
+        }
+
+        UiState.Loading -> {
+            ShowLoading()
+        }
+
+        is UiState.Success -> {
+            val data = upComingMatches.data
+            UpComingMatchList(data)
         }
     }
+
 }
 
 @Composable
-fun UpcomingMatchCard() {
+fun UpComingMatchList(data: UpcomingMatches) {
+    if (data.matches.isEmpty()) {
+        Text(
+            text = stringResource(R.string.no_matches_scheduled_at_the_moment),
+            modifier = Modifier.padding(16.dp)
+        )
+    } else {
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = PaddingSmall),
+            contentPadding = PaddingValues(
+                top = PaddingMedium,
+                start = PaddingMedium,
+                end = PaddingMedium,
+                bottom = PaddingMedium
+            ),
+            verticalArrangement = Arrangement.spacedBy(PaddingMedium)
+        ) {
+            items(data.matches) {
+                UpcomingMatchCard(it)
+            }
+        }
+    }
+
+
+}
+
+@Composable
+fun UpcomingMatchCard(matchInfo: MatchInfo) {
     Card(
         modifier = Modifier,
-        shape = RoundedCornerShape(Dimens.BorderMedium),
-        colors = CardDefaults.cardColors(colorResource(R.color.light_blue)),
+        shape = RoundedCornerShape(Dimens.BorderMedium,),
+        colors = CardDefaults.cardColors(colorResource(R.color.ghost_white)),
         elevation = CardDefaults.cardElevation(2.dp)
     ) {
         Column(
@@ -74,7 +118,7 @@ fun UpcomingMatchCard() {
             ) {
                 // Match Time
                 Text(
-                    text = "20:45",
+                    text = matchInfo.utcDate.toFriendlyDate(),
                     style = TextStyle(
                         fontFamily = Roboto,
                         fontWeight = FontWeight.Medium,
@@ -85,7 +129,7 @@ fun UpcomingMatchCard() {
 
                 //League Title
                 Text(
-                    text = "Premier League",
+                    text = matchInfo.competition.name,
                     style = TextStyle(
                         fontFamily = Roboto,
                         fontWeight = FontWeight.Medium,
@@ -100,7 +144,7 @@ fun UpcomingMatchCard() {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(start = PaddingMedium, end = PaddingMedium),
+                    .padding(start = PaddingMedium, end = PaddingMedium, top = PaddingMedium),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -109,17 +153,16 @@ fun UpcomingMatchCard() {
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    /* areaCompetition.emblem?.takeIf { it.isNotEmpty() }?.let {
-                         Modifier
-                             .size(24.dp)
-                             .clip(CircleShape)
-                             .loadAsyncImage(
-                                 url = it,
-                                 context = LocalContext.current,
-                                 contentDescription = "Away Team Logo"
-                             )()
-                     }?:*/
-                    Image(
+                    matchInfo.homeTeam.crest?.takeIf { it.isNotEmpty() }?.let {
+                        Modifier
+                            .size(24.dp)
+                            .clip(CircleShape)
+                            .loadAsyncImage(
+                                url = it,
+                                context = LocalContext.current,
+                                contentDescription = "Home Team Logo"
+                            )()
+                    } ?: Image(
                         painter = painterResource(id = R.drawable.premier_league_logo),
                         contentDescription = "Premier League Logo",
                         modifier = Modifier
@@ -129,8 +172,8 @@ fun UpcomingMatchCard() {
 
                     Text(
                         modifier = Modifier.padding(4.dp),
-                        text = "Man City",
-                        color = androidx.compose.ui.graphics.Color.Black,
+                        text = matchInfo.homeTeam.shortName,
+                        color = Color.Black,
                         style = TextStyle(
                             fontFamily = Roboto,
                             fontWeight = FontWeight.SemiBold,
@@ -185,17 +228,16 @@ fun UpcomingMatchCard() {
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    /* areaCompetition.emblem?.takeIf { it.isNotEmpty() }?.let {
-                         Modifier
-                             .size(24.dp)
-                             .clip(CircleShape)
-                             .loadAsyncImage(
-                                 url = it,
-                                 context = LocalContext.current,
-                                 contentDescription = "Away Team Logo"
-                             )()
-                     }?:*/
-                    Image(
+                    matchInfo.awayTeam.crest.takeIf { it.isNotEmpty() }?.let {
+                        Modifier
+                            .size(24.dp)
+                            .clip(CircleShape)
+                            .loadAsyncImage(
+                                url = it,
+                                context = LocalContext.current,
+                                contentDescription = "Away Team Logo"
+                            )()
+                    } ?: Image(
                         painter = painterResource(id = R.drawable.premier_league_logo),
                         contentDescription = "Premier League Logo",
                         modifier = Modifier
@@ -205,7 +247,7 @@ fun UpcomingMatchCard() {
 
                     Text(
                         modifier = Modifier.padding(4.dp),
-                        text = "Man City",
+                        text = matchInfo.awayTeam.shortName,
                         color =
                             Color.Black,
                         style = TextStyle(
@@ -233,7 +275,7 @@ fun UpcomingMatchCard() {
             ) {
                 Text(
                     modifier = Modifier.padding(4.dp),
-                    text = "Premier League",
+                    text = matchInfo.competition.name,
                     color = Color.Black,
                     style = TextStyle(
                         fontFamily = Roboto,
@@ -264,5 +306,5 @@ fun UpcomingMatchCard() {
 @Preview(showBackground = true)
 @Composable
 fun UpcomingMatchCardPreview() {
-    UpcomingMatchCard()
+    // UpcomingMatchCard(it)
 }

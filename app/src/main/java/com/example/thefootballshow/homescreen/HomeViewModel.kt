@@ -3,6 +3,7 @@ package com.example.thefootballshow.homescreen
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.thefootballshow.data.model.AreaCompetition
+import com.example.thefootballshow.data.model.UpcomingMatches
 import com.example.thefootballshow.ui.base.Resource
 import com.example.thefootballshow.ui.base.UiState
 import com.example.thefootballshow.utils.Logger.Logger
@@ -11,7 +12,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.update
@@ -28,8 +28,18 @@ class HomeViewModel @Inject constructor(
         MutableStateFlow(UiState.Loading)
     val topLeagues: StateFlow<UiState<List<AreaCompetition>>> = _topLeagues
 
+    private val _liveMatches: MutableStateFlow<UiState<UpcomingMatches>> =
+        MutableStateFlow(UiState.Loading)
+    val liveMatches: StateFlow<UiState<UpcomingMatches>> = _liveMatches
+
+    private val _upcomingMatches: MutableStateFlow<UiState<UpcomingMatches>> =
+        MutableStateFlow(UiState.Loading)
+    val upcomingMatches: StateFlow<UiState<UpcomingMatches>> = _upcomingMatches
+
     init {
         getTopLeagues()
+      //  getLiveMatches()
+        getUpcomingMatches()
     }
 
     fun getTopLeagues() {
@@ -39,7 +49,7 @@ class HomeViewModel @Inject constructor(
                 .onStart { _topLeagues.value = UiState.Loading }
                 .catch {
                     _topLeagues.value = UiState.Error(it.message ?: "Unexpected error")
-                }.collectLatest { result ->
+                }.collect { result ->
                     logger.d("HomeViewModel", "Top leagues result: $result")
                     _topLeagues.value = when (result) {
                         is Resource.Success -> UiState.Success(result.data)
@@ -61,5 +71,39 @@ class HomeViewModel @Inject constructor(
             } else currentState
         }
 
+    }
+
+    fun getLiveMatches() {
+        viewModelScope.launch {
+            repository.getLiveMatches()
+                .flowOn(Dispatchers.IO)
+                .onStart { _topLeagues.value = UiState.Loading }
+                .catch {
+                    _liveMatches.value = UiState.Error(it.message ?: "Unexpected error")
+                }.collect { result ->
+                    logger.d("HomeViewModel", "Live matches result: $result")
+                    _liveMatches.value = when (result) {
+                        is Resource.Success -> UiState.Success(result.data)
+                        is Resource.Error -> UiState.Error(result.message)
+                    }
+                }
+        }
+    }
+
+    fun getUpcomingMatches() {
+        viewModelScope.launch {
+            repository.getUpcomingMatches()
+                .flowOn(Dispatchers.IO)
+                .onStart { _upcomingMatches.value = UiState.Loading }
+                .catch {
+                    _upcomingMatches.value = UiState.Error(it.message ?: "Unexpected error")
+                }.collect { result ->
+                    logger.d("HomeViewModel", "Upcoming matches result: $result")
+                    _upcomingMatches.value = when (result) {
+                        is Resource.Success -> UiState.Success(result.data)
+                        is Resource.Error -> UiState.Error(result.message)
+                    }
+                }
+        }
     }
 }
