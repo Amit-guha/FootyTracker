@@ -44,6 +44,10 @@ class PremierLeagueViewModel @Inject constructor(
         getAllCompetitionInfo()
     }
 
+    fun getLastFiveMatches(){
+
+    }
+
     fun getUpcomingMatches() {
         viewModelScope.launch(dispatcherProvider.main) {
             //2021 -->PL
@@ -51,8 +55,8 @@ class PremierLeagueViewModel @Inject constructor(
             //2018 -->euro
             val date = System.currentTimeMillis().toTodayAndTomorrow()
             val queryMap = mapOf(
-                "dateFrom" to "2025-05-16",
-                "dateTo" to "2025-05-18",
+                "dateFrom" to "2026-01-27",
+                "dateTo" to "2026-01-31",
                 //"dateTo" to "2025-04-14",
                 "status" to MatchStatus.SCHEDULED.title,
                 "season" to "2023"
