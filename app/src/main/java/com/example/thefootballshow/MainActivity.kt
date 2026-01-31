@@ -3,11 +3,13 @@ package com.example.thefootballshow
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import com.example.thefootballshow.ui.navigation.MainScreen
+import com.example.thefootballshow.nav3.NavigationRoot
 import com.example.thefootballshow.ui.theme.TheFootballShowTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -17,13 +19,10 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             TheFootballShowTheme {
-                MainScreen()
-               /* Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
-                ) {
-                    Greeting("Android")
-                }*/
+                Scaffold { innerPadding ->
+                    NavigationRoot(modifier = Modifier.padding(innerPadding))
+                }
+                //MainScreen()
             }
         }
     }
