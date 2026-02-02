@@ -98,6 +98,8 @@ dependencies {
     implementation(libs.navigation3.runtime)
     implementation(libs.navigation3.ui)
 
+    implementation(libs.lifecycle.viewmodel.navigation3)
+
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.kotlinx.serialization.core)
 }

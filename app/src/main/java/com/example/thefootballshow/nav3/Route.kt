@@ -17,7 +17,7 @@ sealed interface Route : NavKey{
     data object TEAMS :Route
 
 
-    data object MATCH_DETAILS : Route
+    data class MATCH_DETAILS(val competitionId : Int, val homeTeamId : Int, val awayTeamId : Int) : Route
 
 
     data object PLAYER_DETAILS :Route

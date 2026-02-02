@@ -18,7 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.thefootballshow.data.model.Competitions
 import com.example.thefootballshow.data.model.MatchInfo
@@ -44,12 +44,7 @@ fun PremierLeagueScreenRoute(
     val matchUiState: UiState<List<MatchInfo>> by premierLeagueViewModel.matchUiState.collectAsStateWithLifecycle()
     val competitionList by premierLeagueViewModel.competitionList.collectAsStateWithLifecycle()
     val topScorerList by premierLeagueViewModel.topScorerList.collectAsStateWithLifecycle()
-
-    /*    LaunchedEffect(Unit) {
-            premierLeagueViewModel.getUpcomingMatches()
-            premierLeagueViewModel.getAllCompetitionInfo()
-        }*/
-
+    
     Log.d(
         "PremierLeagueScreenRoute",
         "PremierLeagueScreenRoute: ${"2023-02-05T20:00:00Z".toFriendlyDate()}"
@@ -58,7 +53,6 @@ fun PremierLeagueScreenRoute(
 
 
     Column(modifier = modifier.fillMaxSize()) {
-        // SetLeagueTitleText(leagueTitle = "Premier League")
         Spacer(modifier = modifier.height(40.dp))
         DisplayLeagueSelection(competitionList) { leagueId ->
             showLog(message = leagueId.toString())
