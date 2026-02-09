@@ -1,4 +1,5 @@
 package com.example.thefootballshow.ui.premierleaguescreenroute
+
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
@@ -22,6 +23,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.thefootballshow.data.model.Competitions
 import com.example.thefootballshow.data.model.MatchInfo
+import com.example.thefootballshow.data.model.Scorer
 import com.example.thefootballshow.data.model.TopScorer
 import com.example.thefootballshow.ui.base.SeeAllText
 import com.example.thefootballshow.ui.base.ShowLoading
@@ -38,13 +40,14 @@ import com.example.thefootballshow.utils.extension.toFriendlyDate
 fun PremierLeagueScreenRoute(
     modifier: Modifier = Modifier,
     premierLeagueViewModel: PremierLeagueViewModel = hiltViewModel(),
-    onItemClick: (MatchNavigationParams) -> Unit
+    onItemClick: (MatchNavigationParams) -> Unit,
+    onPlayerInfoClick: (Scorer) -> Unit
 ) {
 
     val matchUiState: UiState<List<MatchInfo>> by premierLeagueViewModel.matchUiState.collectAsStateWithLifecycle()
     val competitionList by premierLeagueViewModel.competitionList.collectAsStateWithLifecycle()
     val topScorerList by premierLeagueViewModel.topScorerList.collectAsStateWithLifecycle()
-    
+
     Log.d(
         "PremierLeagueScreenRoute",
         "PremierLeagueScreenRoute: ${"2023-02-05T20:00:00Z".toFriendlyDate()}"
@@ -91,14 +94,19 @@ fun PremierLeagueScreenRoute(
         Spacer(modifier = Modifier.height(5.dp))
 
         TopScoreUI()
-        DisplayTopScorer(topScorerList)
+        DisplayTopScorer(topScorerList) {
+            onPlayerInfoClick(it)
+        }
 
     }
 
 }
 
 @Composable
-fun DisplayTopScorer(topScorerList: UiState<TopScorer>) {
+fun DisplayTopScorer(
+    topScorerList: UiState<TopScorer>,
+    onPlayerInfoClick: (Scorer) -> Unit
+) {
     when (topScorerList) {
         is UiState.Error -> {}
 
@@ -110,7 +118,9 @@ fun DisplayTopScorer(topScorerList: UiState<TopScorer>) {
             val topScorerData = topScorerList.data as TopScorer
             LazyColumn {
                 items(topScorerData.scorers) { scorer ->
-                    TopScorerItem(scorer = scorer)
+                    TopScorerItem(scorer = scorer) {
+                        onPlayerInfoClick(it)
+                    }
                 }
             }
         }

@@ -1,8 +1,8 @@
 package com.example.thefootballshow.data.model
 
 data class Area(
-    val code: String?,
-    val flag: String?,
-    val id: Int?,
-    val name: String?
+    val code: String? = null,
+    val flag: String? = null,
+    val id: Int? = null,
+    val name: String? = null
 )

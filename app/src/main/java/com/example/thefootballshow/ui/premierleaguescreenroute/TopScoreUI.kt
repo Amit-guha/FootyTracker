@@ -3,6 +3,7 @@ package com.example.thefootballshow.ui.premierleaguescreenroute
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -51,11 +52,15 @@ fun TopScoreUI() {
 }
 
 @Composable
-fun TopScorerItem(scorer: Scorer) {
+fun TopScorerItem(
+    scorer: Scorer,
+    onPlayerInfoClick: (Scorer) -> Unit
+) {
     ElevatedCard(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(start = 10.dp, end = 10.dp, bottom = 15.dp),
+            .padding(start = 10.dp, end = 10.dp, bottom = 15.dp)
+            .clickable(onClick = { onPlayerInfoClick(scorer) }),
         shape = RoundedCornerShape(15),
         elevation = CardDefaults.cardElevation(5.dp),
         colors = CardDefaults.cardColors(Color.White)

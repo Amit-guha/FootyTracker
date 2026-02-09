@@ -1,8 +1,7 @@
 package com.example.thefootballshow.utils.extension
 
+import java.text.ParseException
 import java.text.SimpleDateFormat
-import java.time.ZonedDateTime
-import java.time.format.DateTimeFormatter
 import java.util.Calendar
 import java.util.Locale
 import java.util.TimeZone
@@ -92,4 +91,31 @@ fun String.toLocalTime(): String {
 
     // Return formatted time
     return localTimeFormatter.format(date)
+}
+
+fun String.ageText(pattern: String = "yyyy-MM-dd"): String {
+    val sdf = SimpleDateFormat(pattern, Locale.getDefault())
+
+    val dobDate = try {
+        sdf.parse(this)
+    } catch (e: ParseException) {
+        return ""
+    } ?: return ""
+
+    val dob = Calendar.getInstance().apply { time = dobDate }
+    val today = Calendar.getInstance()
+
+    var years = today.get(Calendar.YEAR) - dob.get(Calendar.YEAR)
+    var months = today.get(Calendar.MONTH) - dob.get(Calendar.MONTH)
+
+    if (months < 0) {
+        years--
+        months += 12
+    }
+
+    return buildString {
+        if (years > 0) append("$years yrs ")
+        if (months > 0) append("$months mon")
+        if (years == 0 && months == 0) append("0 mon")
+    }.trim()
 }

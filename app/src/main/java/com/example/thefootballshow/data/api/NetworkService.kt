@@ -2,9 +2,11 @@ package com.example.thefootballshow.data.api
 
 import com.example.thefootballshow.data.model.Competitions
 import com.example.thefootballshow.data.model.MatchInfo
+import com.example.thefootballshow.data.model.PlayerInfo
 import com.example.thefootballshow.data.model.Standings
 import com.example.thefootballshow.data.model.TopScorer
 import com.example.thefootballshow.data.model.UpcomingMatches
+import com.example.thefootballshow.data.model.areaList._response.AreasResponse
 import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Path
@@ -45,7 +47,17 @@ interface NetworkService {
 
     @GET("v4/competitions/{leagueCode}/scorers")
     suspend fun getTopScorer(
-        @Path("leagueCode") leagueCode : String,
-        @Query("season") season: Int): TopScorer
+        @Path("leagueCode") leagueCode: String,
+        @Query("season") season: Int
+    ): TopScorer
+
+
+    @GET("v4/persons/{id}")
+    suspend fun getPlayerPersonInfo(
+        @Path("id") id: String
+    ): Response<PlayerInfo>
+
+    @GET("v4/areas")
+    suspend fun getAreaList(): Response<AreasResponse>
 
 }

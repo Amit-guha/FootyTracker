@@ -9,6 +9,7 @@ import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import com.example.thefootballshow.ui.premierleaguescreenroute.PremierLeagueScreenRoute
+import com.example.thefootballshow.ui.profile.PlayerProfileRoute
 import com.example.thefootballshow.ui.upcomingMatch.BuildUpcomingMatchesUI
 import com.example.thefootballshow.ui.upcomingMatchDetails.UpcomingMatchDetailRouteScreen
 import com.example.thefootballshow.utils.enumUtills.MatchTypeEnum
@@ -27,26 +28,29 @@ fun NavigationRoot(modifier: Modifier = Modifier) {
         entryProvider = { key ->
             when (key) {
                 Route.HOME -> NavEntry(key) {
-                    PremierLeagueScreenRoute(onItemClick = { matchNavParams ->
-                        when (matchNavParams.matchEnum) {
-                            MatchTypeEnum.MATCH_DETAILS_ENUM -> {
-                                backStack.add(
-                                    Route.MATCH_DETAILS(
-                                        competitionId = matchNavParams.competitionId ?: 0,
-                                        homeTeamId = matchNavParams.homeTeamId ?: 0,
-                                        awayTeamId = matchNavParams.awayTeamId ?: 0
+                    PremierLeagueScreenRoute(
+                        onItemClick = { matchNavParams ->
+                            when (matchNavParams.matchEnum) {
+                                MatchTypeEnum.MATCH_DETAILS_ENUM -> {
+                                    backStack.add(
+                                        Route.MATCH_DETAILS(
+                                            competitionId = matchNavParams.competitionId ?: 0,
+                                            homeTeamId = matchNavParams.homeTeamId ?: 0,
+                                            awayTeamId = matchNavParams.awayTeamId ?: 0
+                                        )
                                     )
-                                )
-                                Log.d("UpcomingMatchList", "UpcomingMatchList: Clicked")
+                                    Log.d("UpcomingMatchList", "UpcomingMatchList: Clicked")
+                                }
+
+                                MatchTypeEnum.ALL_MATCH_ENUM -> {
+                                    backStack.add(Route.UPCOMING_MATCHES)
+                                }
                             }
 
-                            MatchTypeEnum.ALL_MATCH_ENUM -> {
-                                backStack.add(Route.UPCOMING_MATCHES)
-                            }
+                        },
+                        onPlayerInfoClick = {
+                            backStack.add(Route.PLAYER_DETAILS(scorer = it))
                         }
-
-                    }
-
                     )
 
                 }
@@ -61,6 +65,10 @@ fun NavigationRoot(modifier: Modifier = Modifier) {
 
                 is Route.UPCOMING_MATCHES -> NavEntry(key) {
                     BuildUpcomingMatchesUI()
+                }
+
+                is Route.PLAYER_DETAILS -> NavEntry(key){
+                    PlayerProfileRoute(scorer = key.scorer)
                 }
 
                 else -> error("Unknown route: $key")

@@ -1,5 +1,6 @@
 package com.example.thefootballshow.nav3
 import androidx.navigation3.runtime.NavKey
+import com.example.thefootballshow.data.model.Scorer
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -20,6 +21,8 @@ sealed interface Route : NavKey{
     data class MATCH_DETAILS(val competitionId : Int, val homeTeamId : Int, val awayTeamId : Int) : Route
 
 
-    data object PLAYER_DETAILS :Route
+    data class PLAYER_DETAILS(
+        val scorer : Scorer
+    ) :Route
 
 }
