@@ -13,4 +13,7 @@
     <string name="top_scorers">Top Scorers</string>
     <string name="upcoming_match">Upcoming Match</string>
     <string name="up_coming_match">Up-coming Match</string>
+    <string name="goals">Goals</string>
+    <string name="assists">Assists</string>
+    <string name="played">Played</string>
 </resources>
