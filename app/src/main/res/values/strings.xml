@@ -16,4 +16,10 @@
     <string name="goals">Goals</string>
     <string name="assists">Assists</string>
     <string name="played">Played</string>
+    <string name="technical">Technical</string>
+    <string name="speed">Speed</string>
+    <string name="agility">Agility</string>
+    <string name="profile_picture">Profile Picture</string>
+    <string name="style">"STYLE :  "</string>
+    <string name="love">Love</string>
 </resources>

@@ -2,6 +2,7 @@ package com.example.thefootballshow.ui.profile
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.animation.core.tween
@@ -9,6 +10,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -36,6 +38,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -43,8 +46,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -58,6 +61,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.zIndex
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
@@ -69,6 +73,7 @@ import com.example.thefootballshow.data.model.areaList._response.AreaInfo
 import com.example.thefootballshow.ui.base.UiState
 import com.example.thefootballshow.utils.extension.loadAsyncImage
 import com.example.thefootballshow.utils.extension.showLog
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.random.Random
@@ -98,7 +103,6 @@ fun PlayerProfileRoute(
 
 @Composable
 fun PlayerProfile(playerProfileInfo: UiState<Scorer>, areaInfo: UiState<AreaInfo>) {
-
     val area: AreaInfo? = when (areaInfo) {
         is UiState.Error -> {
             null
@@ -122,59 +126,83 @@ fun PlayerProfile(playerProfileInfo: UiState<Scorer>, areaInfo: UiState<AreaInfo
         is UiState.Success<*> -> {
             val data = playerProfileInfo.data as? Scorer
             val imageSize = 90.dp
-            Column(
-                modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.Top
-            ) {
-                val middleOfScreen = LocalConfiguration.current.screenHeightDp.dp / 2
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(150.dp),
 
-                    ) {
-                    area?.flagUrl?.let {
-                        Modifier
-                            .fillMaxWidth()
-                            .height(150.dp).loadAsyncImage(
-                                url = it,
-                                context = LocalContext.current,
-                                contentDescription = "",
-                                contentScale = ContentScale.FillWidth
-                            )()
-                    } ?: Modifier.background(Color.Red)
+            val containerSize = LocalWindowInfo.current.containerSize
+            val middlePx = remember(containerSize) {
+                containerSize.height.takeIf { it > 0 }?.div(2f) ?: 0f
+            }
 
-                    ProfilePicture(
-                        imageUrl = null,
-                        clubLogoUrl = data?.team?.crest,
-                        size = imageSize,
+            val triggerAnimation = remember { mutableStateListOf<Int>() }
+            var heartCounter by remember { mutableIntStateOf(0) }
+
+            Box(modifier = Modifier.fillMaxSize()) {
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.Top
+                ) {
+                    Box(
                         modifier = Modifier
-                            .align(Alignment.BottomCenter)
-                            .offset(y = imageSize / 2)
+                            .fillMaxWidth()
+                            .height(150.dp),
+
+                        ) {
+                        area?.flagUrl?.let {
+                            Modifier
+                                .fillMaxWidth()
+                                .height(150.dp).loadAsyncImage(
+                                    url = it,
+                                    context = LocalContext.current,
+                                    contentDescription = "",
+                                    contentScale = ContentScale.FillWidth
+                                )()
+                        } ?: Modifier.background(Color.Red)
+
+                        ProfilePicture(
+                            imageUrl = null,
+                            clubLogoUrl = data?.team?.crest,
+                            size = imageSize,
+                            modifier = Modifier
+                                .align(Alignment.BottomCenter)
+                                .offset(y = imageSize / 2)
+                        )
+                    }
+
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .offset(y = imageSize / -4)
+                            .padding(end = 16.dp),
+                        horizontalArrangement = Arrangement.End,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+
+                        LoveButton {
+                            triggerAnimation.add(heartCounter++)
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(imageSize / 1.5f))
+                    PlayerInfo(data)
+                    Spacer(modifier = Modifier.height(height = 40.dp))
+                    PlayerStatsAnimation(
+                        goals = data?.goals ?: 0,
+                        assists = data?.assists ?: 0,
+                        played = data?.playedMatches ?: 0
+                    )
+
+                    Spacer(modifier = Modifier.height(height = 40.dp))
+                    PlayerAttributesSection(data?.player?.section ?: "")
+                }
+
+                triggerAnimation.forEach { key ->
+                    FloatingHeart(
+                        key = key,
+                        middlePx = middlePx,
+                        onAnimationEnd = {
+                            triggerAnimation.remove(key)
+                        }
                     )
                 }
-
-                Row(
-                    modifier = Modifier.fillMaxWidth()
-                        .offset(y = imageSize / -4)
-                        .padding(end = 16.dp),
-                    horizontalArrangement = Arrangement.End,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    LoveButton(middleOfTheScreen = middleOfScreen)
-                }
-
-                Spacer(modifier = Modifier.height(imageSize / 1.5f))
-                PlayerInfo(data)
-                Spacer(modifier = Modifier.height(height = 40.dp))
-                PlayerStatsAnimation(
-                    goals = data?.goals ?: 0,
-                    assists = data?.assists ?: 0,
-                    played = data?.playedMatches ?: 0
-                )
-
-                Spacer(modifier = Modifier.height(height = 40.dp))
-                PlayerAttributesSection(data?.player?.section ?: "")
             }
         }
     }
@@ -321,9 +349,9 @@ fun PlayerAttributes(
             .fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        AttributeItem("Technical", technical)
-        AttributeItem("Speed", speed)
-        AttributeItem("Agility", agility)
+        AttributeItem(stringResource(R.string.technical), technical)
+        AttributeItem(stringResource(R.string.speed), speed)
+        AttributeItem(stringResource(R.string.agility), agility)
     }
 }
 
@@ -356,14 +384,14 @@ fun ProfilePicture(
                 if (!imageUrl.isNullOrBlank()) {
                     AsyncImage(
                         model = imageUrl,
-                        contentDescription = "Profile Picture",
+                        contentDescription = stringResource(R.string.profile_picture),
                         contentScale = ContentScale.Crop,
                         modifier = Modifier.fillMaxSize()
                     )
                 } else {
                     Image(
                         painter = painterResource(R.drawable.ic_football_player),
-                        contentDescription = "Profile Picture",
+                        contentDescription = stringResource(R.string.profile_picture),
                         modifier = Modifier.size(size-20.dp),
                         contentScale = ContentScale.Crop
                     )
@@ -376,7 +404,7 @@ fun ProfilePicture(
             Surface(
                 modifier = Modifier
                     .size(size / 2)
-                    .offset(x= (size / 3),y = (size / 3)),
+                    .offset(x = (size / 3), y = (size / 3)),
                 shape = CircleShape,
                 color = Color.White,
                 shadowElevation = 6.dp,
@@ -409,7 +437,7 @@ fun PlayingStyle(playingStyle: String) {
     ) {
         Text(
             textAlign = TextAlign.Start,
-            text = "STYLE :  ",
+            text = stringResource(R.string.style),
             style = MaterialTheme.typography.titleMedium,
         )
 
@@ -552,50 +580,47 @@ fun StatItem(label: String, value: Int) {
 }
 
 
+
 @Composable
 fun LoveButton(
     size: Dp = 48.dp,
-    middleOfTheScreen : Dp,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onLoveClick: () -> Unit = {}
 ) {
-    var triggerAnimation by remember { mutableIntStateOf(0) }
 
-    Box(
-        modifier = modifier,
-        contentAlignment = Alignment.Center
-    ) {
-
-        repeat(triggerAnimation) {
-            FloatingHeart(
-                middleOfTheScreen = middleOfTheScreen,
-                onAnimationEnd = { triggerAnimation-- }
-            )
-        }
-
-        Surface(
-            modifier = Modifier
-                .size(size)
-                .clickable{
-                    triggerAnimation += 5
-                },
-            shape = CircleShape,
-            color = Color.White,
-            shadowElevation = 8.dp,
-            border = BorderStroke(1.dp, Color.LightGray)
+    Box(modifier = modifier.fillMaxWidth()) {
+        Box(
+            modifier = Modifier.fillMaxWidth(),
+            contentAlignment = Alignment.CenterEnd
         ) {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
+            Surface(
+                modifier = Modifier
+                    .size(size)
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() }
+                    ) {
+                        onLoveClick()
+                    },
+                shape = CircleShape,
+                color = Color.White,
+                shadowElevation = 8.dp,
+                border = BorderStroke(1.dp, Color.LightGray)
             ) {
-                Icon(
-                    imageVector = Icons.Default.Favorite,
-                    contentDescription = "Love",
-                    tint = Color.Red,
-                    modifier = Modifier.size(size * 0.5f)
-                )
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Favorite,
+                        contentDescription = stringResource(R.string.love),
+                        tint = Color.Red,
+                        modifier = Modifier.size(size * 0.5f)
+                    )
+                }
             }
         }
     }
+
 }
 
 
@@ -604,44 +629,54 @@ fun LoveButton(
 
 @Composable
 fun FloatingHeart(
-    middleOfTheScreen : Dp,
+    key : Int,
+    middlePx : Float,
     onAnimationEnd: () -> Unit
 ) {
-    val offsetY = remember { Animatable(0f) }
-    val offsetX = remember { Animatable(Random.nextFloat() * 500f - 300f) }
+    val random = remember(key) { Random(key) }
+    val offsetY = remember { Animatable(middlePx) }
+    val offsetX = remember { Animatable(random.nextFloat() * 300f - 150f) }
     val alpha = remember { Animatable(1f) }
 
-    LaunchedEffect(Unit) {
-        launch {
-            offsetY.animateTo(
-                targetValue = -middleOfTheScreen.value,
-                animationSpec = tween(2500)
-            )
-        }
 
-        launch {
-            alpha.animateTo(
-                targetValue = 0f,
-                animationSpec = tween(2500)
-            )
+    LaunchedEffect(key) {
+        coroutineScope {
+            launch {
+                offsetY.animateTo(
+                    targetValue =  -50f,
+                    animationSpec = tween(durationMillis = 2500,
+                        easing = LinearOutSlowInEasing)
+                )
+            }
+
+            launch {
+                alpha.animateTo(
+                    targetValue = 0f,
+                    animationSpec = tween(2500)
+                )
+            }
         }
 
         delay(2500)
         onAnimationEnd()
     }
 
-    Icon(
-        imageVector = Icons.Default.Favorite,
-        contentDescription = null,
-        tint = Color.Red,
-        modifier = Modifier
-            .size(36.dp)
-            .graphicsLayer {
-                translationY = offsetY.value
-                translationX = offsetX.value
-                this.alpha = alpha.value
-            }
-    )
+    Box(modifier = Modifier.fillMaxSize()) {
+        Icon(
+            imageVector = Icons.Default.Favorite,
+            contentDescription = null,
+            tint = Color.Red,
+            modifier = Modifier
+                .zIndex(10f)
+                .align(Alignment.TopCenter)
+                .size(36.dp)
+                .graphicsLayer {
+                    translationY = offsetY.value
+                    translationX = offsetX.value
+                    this.alpha = alpha.value
+                }
+        )
+    }
 }
 
 
