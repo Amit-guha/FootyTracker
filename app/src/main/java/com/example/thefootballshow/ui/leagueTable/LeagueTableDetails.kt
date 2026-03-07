@@ -62,7 +62,7 @@ fun TeamStandingInLeague(table: Table, modifier: Modifier = Modifier) {
             )
         )
 
-        table.team.crest.takeIf { it.isNotEmpty() }?.let {
+        table.team.crest.takeIf { it?.isNotEmpty() == true}?.let {
             modifier
                 .width(25.dp)
                 .height(25.dp)
@@ -85,7 +85,7 @@ fun TeamStandingInLeague(table: Table, modifier: Modifier = Modifier) {
             ) {}
         }
 
-        val teamAbbreviation = table.team.tla.ifEmpty { "" }
+        val teamAbbreviation = table.team.tla?:""
         Text(
             teamAbbreviation,
             modifier = modifier

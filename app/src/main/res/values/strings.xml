@@ -22,4 +22,7 @@
     <string name="profile_picture">Profile Picture</string>
     <string name="style">"STYLE :  "</string>
     <string name="love">Love</string>
+    <string name="back">Back</string>
+    <string name="away_team_logo">Away Team Logo</string>
+    <string name="home_team_logo">Home Team Logo</string>
 </resources>

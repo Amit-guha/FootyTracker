@@ -1,20 +1,20 @@
 package com.example.thefootballshow.data.model
 
 data class MatchInfo(
-    val area: Area,
-    val awayTeam: AwayTeam,
-    val competition: Competition,
-    val group: Any,
-    val homeTeam: HomeTeam,
-    val id: Int,
-    val lastUpdated: String,
-    val matchday: Int,
+    val area: Area?= null,
+    val awayTeam: AwayTeam?= null,
+    val competition: Competition?= null,
+    val group: Any?= null,
+    val homeTeam: HomeTeam?= null,
+    val id: Int?= null,
+    val lastUpdated: String?=null,
+    val matchday: Int?= null,
     var venue: String? = null,
-    val odds: Odds,
-    val referees: List<Any>,
-    val score: Score,
-    val season: Season,
-    val stage: String,
-    val status: String,
-    val utcDate: String
+    val odds: Odds?= null,
+    val referees: List<Any>? =null,
+    val score: Score?= null,
+    val season: Season?= null,
+    val stage: String?= null,
+    val status: String?= null,
+    val utcDate: String?= null
 )

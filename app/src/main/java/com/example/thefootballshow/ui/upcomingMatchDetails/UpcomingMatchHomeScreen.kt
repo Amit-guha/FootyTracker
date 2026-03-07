@@ -44,7 +44,7 @@ fun MatchCard(data: MatchInfo, onClick: (Int, Int, Int) -> Unit) {
         modifier = Modifier
             .padding(start = 10.dp, end = 10.dp, top = 15.dp)
             .clickable {
-                onClick(data.id, data.homeTeam.id, data.awayTeam.id)
+                onClick(data.id?:-1, data.homeTeam?.id?:-1, data.awayTeam?.id?:-1)
                 Log.d("FullCard", "FullCard: ${data.utcDate}")
             },
         shape = RoundedCornerShape(15.dp),
@@ -69,8 +69,8 @@ fun HomeTeamVsAwayTeam(data: MatchInfo) {
 
 @Composable
 private fun FormatDayAndTime(data: MatchInfo) {
-    DayText(dayDescription = data.utcDate.toFriendlyDate())
-    TimeText(time = data.utcDate.toAmPmFormat())
+    DayText(dayDescription = data.utcDate?.toFriendlyDate()?:"")
+    TimeText(time = data.utcDate?.toAmPmFormat()?:"")
 }
 
 @Composable
@@ -91,8 +91,8 @@ private fun AwayTeamSection(data: MatchInfo) {
         modifier = Modifier.padding(start = 10.dp, end = 15.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        ClubImage(url = data.awayTeam.crest ?: "")
-        ClubName(teamName = data.awayTeam.tla)
+        ClubImage(url = data.awayTeam?.crest ?: "")
+        ClubName(teamName = data.awayTeam?.tla?:"")
     }
 }
 
@@ -102,8 +102,8 @@ private fun HomeTeamSection(data: MatchInfo) {
         modifier = Modifier.padding(start = 15.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        ClubImage(url = data.homeTeam.crest ?: "")
-        ClubName(teamName = data.homeTeam.tla)
+        ClubImage(url = data.homeTeam?.crest ?: "")
+        ClubName(teamName = data.homeTeam?.tla?:"")
     }
 }
 

@@ -1,9 +1,9 @@
 package com.example.thefootballshow.data.model
 
 data class HomeTeam(
-    val crest: String?,
-    val id: Int,
-    val name: String,
-    val shortName: String,
-    val tla: String
+    val crest: String? = null,
+    val id: Int? = null,
+    val name: String? = null,
+    val shortName: String? = null,
+    val tla: String? = null
 )

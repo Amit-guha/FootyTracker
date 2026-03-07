@@ -24,7 +24,7 @@ fun Modifier.loadAsyncImage(
             } else {
                 url
             },
-            modifier = this, // Use the single modifier passed by the caller
+            modifier = this,
             contentDescription = contentDescription,
             contentScale = contentScale
         )

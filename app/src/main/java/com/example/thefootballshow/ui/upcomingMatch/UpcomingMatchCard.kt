@@ -46,7 +46,7 @@ fun FullCard(modifier: Modifier = Modifier, data: MatchInfo, onClick: (Int, Int,
             .fillMaxWidth()
             .padding(start = 10.dp, end = 10.dp, bottom = 10.dp)
             .clickable {
-                onClick(data.id, data.homeTeam.id, data.awayTeam.id)
+                onClick(data.id ?:-1, data.homeTeam?.id?:-1, data.awayTeam?.id?:-1)
             }, shape = RoundedCornerShape(10.dp),
 
         elevation = CardDefaults.cardElevation(1.dp),
@@ -73,8 +73,8 @@ fun RowScope.HomeTeamCard(modifier: Modifier = Modifier, data: MatchInfo) {
             modifier = modifier.padding(start = 15.dp, top = 10.dp, bottom = 10.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            CardImage(url = data.homeTeam.crest ?: "")
-            ClubTextName(teamName = data.homeTeam.shortName)
+            CardImage(url = data.homeTeam?.crest ?: "")
+            ClubTextName(teamName = data.homeTeam?.shortName?:"")
         }
     }
 }
@@ -90,8 +90,8 @@ fun RowScope.AwayTeamCard(modifier: Modifier = Modifier, data: MatchInfo) {
                 .padding(end = 15.dp, top = 10.dp, bottom = 10.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            CardImage(url = data.awayTeam.crest)
-            ClubTextName(teamName = data.awayTeam.shortName)
+            CardImage(url = data.awayTeam?.crest?:"")
+            ClubTextName(teamName = data.awayTeam?.shortName?:"")
         }
     }
 }
@@ -108,9 +108,9 @@ fun RowScope.MatchTimeCard(modifier: Modifier = Modifier, data: MatchInfo) {
             modifier = modifier,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            DayTextName(dayDescription = data.utcDate.toFriendlyDate())
+            DayTextName(dayDescription = data.utcDate?.toFriendlyDate()?:"")
             Spacer(modifier = modifier.height(2.dp))
-            TimeTextName(time = data.utcDate.toAmPmFormat())
+            TimeTextName(time = data.utcDate?.toAmPmFormat()?:"")
         }
     }
 }
