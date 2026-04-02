@@ -3,6 +3,7 @@ package com.example.thefootballshow.ui.upcomingMatchDetails
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.thefootballshow.data.model.MatchInfo
+import com.example.thefootballshow.data.model.RecentFormInfo
 import com.example.thefootballshow.data.model.Standings
 import com.example.thefootballshow.data.model.Table
 import com.example.thefootballshow.data.model.Team
@@ -15,6 +16,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -42,10 +44,12 @@ class UpcomingMatchDetailsViewModel @Inject constructor(
     private val _leagueTableInfo = MutableStateFlow<UiState<Standings>>(UiState.Loading)
     val leagueTableInfo: StateFlow<UiState<Standings>> = _leagueTableInfo
 
+    private val _recentFormInfo = MutableStateFlow<UiState<RecentFormInfo>>(UiState.Loading)
+    val recentFormInfo: StateFlow<UiState<RecentFormInfo>> = _recentFormInfo
+
 
     fun getPreMatchDetailsInfo() {
         viewModelScope.launch(dispatcherProvider.main) {
-            logger.d("competitionId2 :", "$competitionId")
             repository.getPreMatchDetails(competitionId = this@UpcomingMatchDetailsViewModel.competitionId)
                 .flowOn(dispatcherProvider.io)
                 .catch { e ->
@@ -53,9 +57,54 @@ class UpcomingMatchDetailsViewModel @Inject constructor(
                 }
                 .collect {
                     _preMatchDetailsInfo.value = UiState.Success(it)
+                    updateRecentFormInfo(it)
                 }
         }
 
+    }
+
+    private fun updateRecentFormInfo(matchInfo: MatchInfo) {
+        viewModelScope.launch(dispatcherProvider.io) {
+            combine(_homeTeamMatchData, _awayTeamMatchData) { homeData, awayData ->
+                if (homeData is UiState.Success && awayData is UiState.Success) {
+                    val homeForm = homeData.data.map { getResult(it, homeTeamId) }
+                    val awayForm = awayData.data.map { getResult(it, awayTeamId) }
+                    
+                    UiState.Success(
+                        RecentFormInfo(
+                            homeTeamTla = matchInfo.homeTeam?.tla ?: "",
+                            homeTeamForm = homeForm,
+                            awayTeamTla = matchInfo.awayTeam?.tla ?: "",
+                            awayTeamForm = awayForm
+                        )
+                    )
+                } else {
+                    UiState.Loading
+                }
+            }.collect {
+                _recentFormInfo.value = it
+            }
+        }
+    }
+
+    private fun getResult(match: MatchInfo, teamId: Int): String {
+        val score = match.score ?: return "D"
+        val homeScore = score.fullTime.home
+        val awayScore = score.fullTime.away
+        
+        return if (match.homeTeam?.id == teamId) {
+            when {
+                homeScore > awayScore -> "W"
+                homeScore < awayScore -> "L"
+                else -> "D"
+            }
+        } else {
+            when {
+                awayScore > homeScore -> "W"
+                awayScore < homeScore -> "L"
+                else -> "D"
+            }
+        }
     }
 
 

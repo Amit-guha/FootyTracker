@@ -52,8 +52,8 @@ class PremierLeagueViewModel @Inject constructor(
             //2018 -->euro
             val date = System.currentTimeMillis().toTodayAndTomorrow()
             val queryMap = mapOf(
-                "dateFrom" to "2026-03-07",
-                "dateTo" to "2026-03-14",
+                "dateFrom" to "2026-03-27",
+                "dateTo" to "2026-04-20",
                 //"dateTo" to "2025-04-14",
                 "status" to MatchStatus.SCHEDULED.title,
                 "season" to "2023"

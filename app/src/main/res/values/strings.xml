@@ -25,4 +25,6 @@
     <string name="back">Back</string>
     <string name="away_team_logo">Away Team Logo</string>
     <string name="home_team_logo">Home Team Logo</string>
+    <string name="recent_form">RECENT FORM</string>
+    <string name="last_5_matches">LAST 5 MATCHES</string>
 </resources>

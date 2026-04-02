@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -17,17 +16,21 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -37,10 +40,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -52,27 +53,20 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.thefootballshow.R
-import com.example.thefootballshow.data.model.AwayTeam
-import com.example.thefootballshow.data.model.Competition
-import com.example.thefootballshow.data.model.HomeTeam
 import com.example.thefootballshow.data.model.MatchInfo
+import com.example.thefootballshow.data.model.RecentFormInfo
 import com.example.thefootballshow.data.model.Standings
 import com.example.thefootballshow.ui.base.ShowLoading
 import com.example.thefootballshow.ui.base.TopAppBar
 import com.example.thefootballshow.ui.base.UiState
 import com.example.thefootballshow.ui.leagueTable.TeamStandingInLeague
-import com.example.thefootballshow.utils.enumUtills.FixturesEnum
-import com.example.thefootballshow.utils.extension.getResultColor
+import com.example.thefootballshow.ui.theme.AppTheme
+import com.example.thefootballshow.ui.theme.TheFootballShowTheme
+import com.example.thefootballshow.ui.theme.White
 import com.example.thefootballshow.utils.extension.loadAsyncImage
 import com.example.thefootballshow.utils.extension.showLog
 import com.example.thefootballshow.utils.extension.toLocalDateAndMonth
 import com.example.thefootballshow.utils.extension.toLocalTime
-
-
-//{{url}}/v4/matches/497520 -- match details before game
-//{{url}}/v4/teams/57/matches?status=FINISHED&season=2024&competitions&limit=5  -- last 5 match details
-//{{url}}/v4/competitions/PL/standings?season=2024  -- premier league table
-//{{url}}/v4/matches/497526/head2head?limit=5 -- head to head matches
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -89,10 +83,13 @@ fun CenterAlignedTopAppBarExample(
     val homeTeamUiState: UiState<List<MatchInfo>> by viewModel.homeTeamMatchData.collectAsStateWithLifecycle()
     val awayTeamUiState: UiState<List<MatchInfo>> by viewModel.awayTeamMatchData.collectAsStateWithLifecycle()
     val leagueTableUiState: UiState<Standings> by viewModel.leagueTableInfo.collectAsStateWithLifecycle()
+    val recentFormUiState: UiState<RecentFormInfo> by viewModel.recentFormInfo.collectAsStateWithLifecycle()
 
-    viewModel.getPreMatchDetailsInfo()
-    viewModel.getLastFiveMatchDetails()
-    viewModel.getStandingInfo()
+    LaunchedEffect(Unit) {
+        viewModel.getPreMatchDetailsInfo()
+        viewModel.getLastFiveMatchDetails()
+        viewModel.getStandingInfo()
+    }
 
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
@@ -109,18 +106,162 @@ fun CenterAlignedTopAppBarExample(
                 .padding(start = 16.dp, end = 16.dp)
         ) {
             DisplayMatchDetails(matchUiState)
-            LeagueHeadLine(text = stringResource(R.string.lastFiveGames))
-            CompetitionInfo(
-                onAllCallback = {},
-                onHomeCallback = {},
-                onAwayCallback = {}
-            )
-            TeamStatLazyColumn(homeTeamUiState = homeTeamUiState, awayTeamUiState = awayTeamUiState)
+
+            Spacer(modifier = Modifier.height(16.dp))
+            RecentFormSection(recentFormUiState)
             LeagueHeadLine(text = stringResource(R.string.league_table))
             LeagueTableSeasonSpinner()
             LeagueTable(leagueTableUiState)
         }
 
+    }
+}
+
+@Composable
+fun RecentFormSection(recentFormUiState: UiState<RecentFormInfo>) {
+    when (recentFormUiState) {
+        is UiState.Success -> {
+            RecentFormCard(recentFormUiState.data)
+        }
+
+        is UiState.Loading -> {}
+        is UiState.Error -> {}
+    }
+}
+
+@Composable
+fun RecentFormCard(recentForm: RecentFormInfo) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp),
+        shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.cardColors(MaterialTheme.colorScheme.surface.copy(alpha = 0.2f)),
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .background(MaterialTheme.colorScheme.surface)
+                .padding(24.dp),
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = stringResource(R.string.recent_form),
+                    style = TextStyle(
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
+                        letterSpacing = 1.sp,
+                        color = MaterialTheme.colorScheme.onPrimary
+                    )
+                )
+                Text(
+                    text = stringResource(R.string.last_5_matches),
+                    style = TextStyle(
+                        fontSize = 12.sp,
+                        color = AppTheme.customColors.drawPrimary,
+                        fontWeight = Medium
+                    )
+                )
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+            TeamFormRow(teamName = recentForm.homeTeamTla, form = recentForm.homeTeamForm)
+            Spacer(modifier = Modifier.height(20.dp))
+            TeamFormRow(teamName = recentForm.awayTeamTla, form = recentForm.awayTeamForm)
+        }
+    }
+}
+
+@Composable
+fun TeamFormRow(teamName: String, form: List<String>) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = teamName,
+            modifier = Modifier.width(60.dp),
+            style = TextStyle(
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold,
+                color = AppTheme.customColors.teamNameColor
+            )
+        )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.End
+        ) {
+            form.take(5).forEach { result ->
+                FormBox(result)
+                Spacer(modifier = Modifier.width(8.dp))
+            }
+        }
+    }
+}
+
+@Composable
+fun FormBox(result: String) {
+    val backgroundColor = when (result.uppercase()) {
+        "W" -> MaterialTheme.colorScheme.primary
+        "L" -> MaterialTheme.colorScheme.onTertiary
+        else -> MaterialTheme.colorScheme.secondaryContainer
+    }
+    val textColor = if (result.uppercase() == "D") AppTheme.customColors.drawPrimary else if (result.uppercase() == "L") White else AppTheme.customColors.winPrimary
+
+    Box(
+        modifier = Modifier
+            .size(40.dp)
+            .background(backgroundColor, shape = RoundedCornerShape(12.dp)),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = result.uppercase(),
+            style = TextStyle(
+                color = textColor,
+                fontWeight = FontWeight.ExtraBold
+            )
+        )
+    }
+}
+
+
+@Preview(name = "Light Mode", showBackground = true)
+@Composable
+fun RecentFormCardPreviewLight() {
+    val sampleData = RecentFormInfo(
+        homeTeamTla = "ARS",
+        homeTeamForm = listOf("W", "L", "D", "W", "W"),
+        awayTeamTla = "CHE",
+        awayTeamForm = listOf("L", "W", "D", "L", "W")
+    )
+
+    TheFootballShowTheme(
+        darkTheme = false,
+        dynamicColor = false
+    ) {
+        RecentFormCard(sampleData)
+    }
+}
+
+@Preview(name = "Dark Mode", showBackground = true)
+@Composable
+fun RecentFormCardPreviewDark() {
+    val sampleData = RecentFormInfo(
+        homeTeamTla = "ARS",
+        homeTeamForm = listOf("W", "L", "D", "W", "W"),
+        awayTeamTla = "CHE",
+        awayTeamForm = listOf("L", "W", "D", "L", "W")
+    )
+
+    TheFootballShowTheme(
+        darkTheme = true,
+        dynamicColor = false
+    ) {
+        RecentFormCard(sampleData)
     }
 }
 
@@ -135,7 +276,6 @@ fun getMatchTitleText(matchUiState: UiState<MatchInfo>): String {
         is UiState.Error -> ""
     }
 }
-
 
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -155,7 +295,7 @@ fun LeagueTable(
             val data = tableInfoUiState.data
             context.showLog(tag = "Standings", message = "${data.standings.size}")
             if (data.standings.isNotEmpty() && data.standings[0].table.isNotEmpty()) {
-                LazyColumn {
+                LazyColumn(modifier = Modifier.height(400.dp)) { // Added height to avoid infinite height issues in Column
                     stickyHeader {
                         TeamStandingInLeague(table = data.standings[0].table[0])
                     }
@@ -175,246 +315,6 @@ fun LeagueTable(
 
 
 @Composable
-fun TeamStatLazyColumn(
-    homeTeamUiState: UiState<List<MatchInfo>>,
-    awayTeamUiState: UiState<List<MatchInfo>>
-) {
-    Row(
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        HomeTeamStats(homeTeamUiState = homeTeamUiState)
-        AwayTeamStats(awayTeamUiState = awayTeamUiState)
-    }
-}
-
-
-@Composable
-fun RowScope.HomeTeamStats(
-    homeTeamUiState: UiState<List<MatchInfo>>,
-    modifier: Modifier = Modifier
-) {
-    when (homeTeamUiState) {
-        is UiState.Error -> {}
-        UiState.Loading -> {
-            ShowLoading()
-        }
-
-        is UiState.Success -> {
-            Box(
-                modifier = Modifier
-                    .weight(0.5f)
-            ) {
-                LazyColumn(modifier = modifier.padding(top = 20.dp)) {
-                    items(homeTeamUiState.data) { item ->
-                        HomeTeamStat(
-                            matchInfo = item
-                        )
-                    }
-                }
-            }
-
-        }
-    }
-}
-
-
-@Composable
-fun RowScope.AwayTeamStats(
-    awayTeamUiState: UiState<List<MatchInfo>>,
-    modifier: Modifier = Modifier
-) {
-    when (awayTeamUiState) {
-        is UiState.Error -> {}
-        UiState.Loading -> {
-            ShowLoading()
-        }
-
-        is UiState.Success -> {
-            Box(
-                modifier = Modifier
-                    .weight(0.5f)
-            ) {
-                LazyColumn(modifier = modifier.padding(top = 20.dp)) {
-                    items(awayTeamUiState.data) { item ->
-                        AwayTeamStat(matchInfo = item)
-                    }
-                }
-            }
-        }
-    }
-}
-
-
-@Composable
-fun HomeTeamStat(
-    modifier: Modifier = Modifier,
-    matchInfo: MatchInfo
-) {
-    Row(
-        modifier = modifier
-            .padding(bottom = 5.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.Center
-    ) {
-        HomeTeamResultInfo(0.4f, matchInfo)
-        matchInfo.score?.getResultColor()?.let {
-            TeamVsTeamDrawingRect(0.1f, it)
-        }
-
-
-    }
-
-}
-
-
-@Composable
-fun AwayTeamStat(
-    modifier: Modifier = Modifier,
-    matchInfo: MatchInfo
-) {
-    Row(
-        modifier = modifier
-            .padding(bottom = 5.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.Center
-    ) {
-        val color = matchInfo.score?.getResultColor()
-        color?.let {
-            AwayTeamDrawingRect(0.1f, color)
-        }
-        AwayTeamResultInfo(0.4f, matchInfo)
-    }
-}
-
-@Composable
-fun RowScope.AwayTeamDrawingRect(weight: Float, color: Color) {
-    Row(
-        Modifier.weight(weight),
-        horizontalArrangement = Arrangement.Center,
-    ) {
-        Box(
-            Modifier
-                .size(10.dp, 10.dp)
-                .align(Alignment.Bottom)
-                .background(color = color, shape = RectangleShape)
-        )
-    }
-
-}
-
-@Composable
-fun RowScope.TeamVsTeamDrawingRect(weight: Float, color: Color) {
-    Row(
-        Modifier.weight(weight),
-        horizontalArrangement = Arrangement.Center,
-    ) {
-        Box(
-            Modifier
-                .size(10.dp, 10.dp)
-                .align(Alignment.CenterVertically)
-                .background(color = color, shape = RectangleShape)
-        )
-
-        /* Box(
-             Modifier
-                 .padding(start = 5.dp)
-                 .size(15.dp, 15.dp)
-                 .background(color = Color.DarkGray, shape = RectangleShape)
-         )*/
-    }
-
-}
-
-@Composable
-fun RowScope.HomeTeamResultInfo(
-    weight: Float,
-    matchInfo: MatchInfo
-) {
-    Row(
-        Modifier
-            .fillMaxWidth()
-            .weight(weight),
-        horizontalArrangement = Arrangement.Center
-    ) {
-        Text(
-            matchInfo.homeTeam?.tla?:"",
-            style = TextStyle(
-                fontSize = 18.sp,
-                color = Color.Black,
-                // color = Color.White,
-                fontWeight = Medium,
-                textAlign = TextAlign.Start
-            )
-        )
-
-        Text(
-            "${matchInfo.score?.fullTime?.home} - ${matchInfo.score?.fullTime?.away}",
-            Modifier.padding(start = 5.dp),
-            style = TextStyle(
-                fontSize = 18.sp,
-                fontWeight = Medium,
-                textAlign = TextAlign.Center
-            )
-        )
-
-        Text(
-            matchInfo.awayTeam?.tla ?: "",
-            Modifier.padding(start = 5.dp),
-            style = TextStyle(
-                fontSize = 18.sp,
-                fontWeight = Medium,
-                textAlign = TextAlign.Start
-            )
-        )
-    }
-}
-
-
-@Composable
-fun RowScope.AwayTeamResultInfo(
-    weight: Float,
-    matchInfo: MatchInfo
-) {
-    Row(
-        Modifier
-            .fillMaxWidth()
-            .weight(weight),
-        horizontalArrangement = Arrangement.Center
-    ) {
-        Text(
-            matchInfo.homeTeam?.tla ?: "",
-            style = TextStyle(
-                fontSize = 18.sp,
-                // color = Color.White,
-                color = Color.Black,
-                fontWeight = Medium,
-                textAlign = TextAlign.Start
-            )
-        )
-
-        Text(
-            "${matchInfo.score?.fullTime?.home} - ${matchInfo.score?.fullTime?.away}",
-            Modifier.padding(start = 5.dp),
-            style = TextStyle(
-                fontSize = 18.sp,
-                fontWeight = Medium,
-                textAlign = TextAlign.End
-            )
-        )
-
-        Text(
-            matchInfo.awayTeam?.tla ?: "",
-            Modifier.padding(start = 5.dp),
-            style = TextStyle(
-                fontSize = 18.sp,
-                fontWeight = Medium,
-                textAlign = TextAlign.End
-            )
-        )
-    }
-}
-
-@Composable
 fun LeagueHeadLine(
     modifier: Modifier = Modifier,
     text: String
@@ -430,58 +330,7 @@ fun LeagueHeadLine(
 }
 
 @Composable
-fun CompetitionInfo(
-    selectedItem: FixturesEnum = FixturesEnum.ALL,
-    onAllCallback: () -> Unit,
-    onHomeCallback: () -> Unit,
-    onAwayCallback: () -> Unit
-) {
-    Row(
-        Modifier.padding(start = 20.dp, top = 10.dp),
-        horizontalArrangement = Arrangement.Center,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Row(modifier = Modifier.weight(0.5f)) {
-            Text(
-                stringResource(R.string.all),
-                modifier = Modifier.weight(0.1f),
-                style = TextStyle(
-                    textAlign = TextAlign.Center,
-                    fontSize = 15.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = if (selectedItem == FixturesEnum.ALL) colorResource(id = R.color.moonstone) else Color.DarkGray
-                )
-            )
-            Text(
-                stringResource(R.string.home),
-                modifier = Modifier
-                    .weight(0.1f)
-                    .align(Alignment.CenterVertically),
-                style = TextStyle(
-                    textAlign = TextAlign.Center,
-                    fontSize = 15.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = if (selectedItem == FixturesEnum.HOME) colorResource(id = R.color.moonstone) else Color.White
-                )
-            )
-            Text(
-                stringResource(R.string.away),
-                modifier = Modifier.weight(0.1f),
-                style = TextStyle(
-                    textAlign = TextAlign.Center,
-                    fontSize = 15.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = if (selectedItem == FixturesEnum.AWAY) colorResource(id = R.color.moonstone) else Color.White
-                )
-            )
-        }
-
-
-    }
-}
-
-@Composable
-fun LeagueTableSeasonSpinner(modifier: Modifier = Modifier) {
+fun LeagueTableSeasonSpinner() {
     val listOfItems = listOf(
         "SEASON 2024/25",
         "SEASON 2023/24",
@@ -528,25 +377,6 @@ fun LeagueTableSeasonSpinner(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun Fixtures(modifier: Modifier = Modifier) {
-    Row {
-        Text(
-            stringResource(R.string.all),
-            modifier = modifier.weight(0.1f)
-        )
-        Text(
-            stringResource(R.string.home),
-            modifier = modifier.weight(0.1f)
-        )
-        Text(
-            stringResource(R.string.away),
-            modifier = modifier.weight(0.1f)
-        )
-
-    }
-}
-
-@Composable
 fun CompetitionBetweenTeamsTimeInfo(data: MatchInfo) {
     Row(
         modifier = Modifier
@@ -561,40 +391,6 @@ fun CompetitionBetweenTeamsTimeInfo(data: MatchInfo) {
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun CompetitionBetweenTeamsTimeInfoPreview() {
-    CompetitionBetweenTeamsTimeInfo(
-        data = MatchInfo(
-            id = 12345,
-            homeTeam = HomeTeam(
-                id = 1,
-                name = "Chelsea",
-                shortName = "Chelsea",
-                tla = "CHE",
-                crest = ""
-            ),
-            awayTeam = AwayTeam(
-                id = 2,
-                name = "Arsenal",
-                shortName = "Arsenal",
-                tla = "ARS",
-                crest = ""
-            ),
-            utcDate = "2024-03-15T15:00:00Z",
-            competition = Competition(
-                id = 2021,
-                name = "Premier League",
-                code = "PL",
-                type = "LEAGUE"
-            ),
-            status = "SCHEDULED",
-            matchday = 28
-        )
-    )
-}
-
-
 @Composable
 fun MatchStartTimeInfo(modifier: Modifier = Modifier, data: MatchInfo) {
     Box(
@@ -604,7 +400,9 @@ fun MatchStartTimeInfo(modifier: Modifier = Modifier, data: MatchInfo) {
         Column(
             modifier = modifier
         ) {
-            Text(text = data.utcDate.takeIf { it?.isNotEmpty() == true}?.toLocalDateAndMonth() ?: "")
+            Text(
+                text = data.utcDate.takeIf { it?.isNotEmpty() == true }?.toLocalDateAndMonth() ?: ""
+            )
             Text(
                 text = data.utcDate.takeIf { it?.isNotEmpty() == true }?.toLocalTime() ?: "",
                 style = TextStyle(
@@ -622,7 +420,7 @@ fun TeamVsTeamLastWinningInfo(modifier: Modifier, data: MatchInfo) {
     Box(
         modifier = modifier,
         contentAlignment = Alignment.Center,
-    ){
+    ) {
         Column(
             modifier = modifier,
             horizontalAlignment = Alignment.CenterHorizontally
@@ -644,11 +442,12 @@ fun TeamVsTeamLastWinningInfo(modifier: Modifier, data: MatchInfo) {
 
 
 @Composable
- fun HomeTeamVsAwayTeamLogo(modifier: Modifier, data: MatchInfo) {
+fun HomeTeamVsAwayTeamLogo(modifier: Modifier, data: MatchInfo) {
     val context = LocalContext.current
     Box(
         modifier = modifier,
-        contentAlignment = Alignment.Center) {
+        contentAlignment = Alignment.Center
+    ) {
         data.awayTeam?.crest.takeIf { it?.isNotEmpty() == true }?.let {
             Modifier
                 .size(50.dp)
@@ -700,8 +499,10 @@ fun HomeTeamVsAwayTeamWinningStatistics(
     nameOfTheTeam: String,
     winCount: String
 ) {
-    Row(verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.Center) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Center
+    ) {
         Text(
             modifier = modifier.padding(start = 10.dp),
             text = nameOfTheTeam,
@@ -731,16 +532,6 @@ fun HomeTeamVsAwayTeamWinningStatistics(
     }
 
 }
-
-@Preview(showBackground = true)
-@Composable
-fun HomeTeamVsAwayTeamWinningStatisticsPreview() {
-    HomeTeamVsAwayTeamWinningStatistics(
-        nameOfTheTeam = "Barcelona",
-        winCount = "5"
-    )
-}
-
 
 
 @Composable
@@ -788,23 +579,6 @@ fun LeagueHeader(
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            /*if (stadiumName.isNotEmpty() && currentMatchDay.isNotEmpty()) {
-                Text(
-                    text = stadiumName,
-                    style = TextStyle(
-                        fontSize = 20.sp,
-                        textAlign = TextAlign.Center,
-                        fontWeight = FontWeight.Normal
-                    ),
-                )
-
-                if (currentMatchDay.isNotEmpty()) {
-                    Text(
-                        text = " | ",
-                        fontSize = 25.sp,
-                    )
-                }
-            }*/
             Text(
                 text = "MatchDay $currentMatchDay",
                 style = TextStyle(
@@ -816,15 +590,4 @@ fun LeagueHeader(
 
         }
     }
-}
-
-@Composable
-@Preview(name = "LeagueHeader - Preview", showBackground = true)
-fun Preview_LeagueHeader() {
-    LeagueHeader(
-        leagueName = "Premier League",
-        url = "",
-        stadiumName = "Emirates Stadium",
-        currentMatchDay = "20"
-    )
 }
