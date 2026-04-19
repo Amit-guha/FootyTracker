@@ -18,13 +18,9 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
@@ -48,7 +44,6 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.font.FontWeight.Companion.Medium
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -60,9 +55,9 @@ import com.example.thefootballshow.ui.base.ShowLoading
 import com.example.thefootballshow.ui.base.TopAppBar
 import com.example.thefootballshow.ui.base.UiState
 import com.example.thefootballshow.ui.leagueTable.TeamStandingInLeague
-import com.example.thefootballshow.ui.theme.AppTheme
-import com.example.thefootballshow.ui.theme.TheFootballShowTheme
-import com.example.thefootballshow.ui.theme.White
+import com.example.thefootballshow.ui.upcomingMatchDetails.components.HeadToHeadCard
+import com.example.thefootballshow.ui.upcomingMatchDetails.components.MomentumTrackerCard
+import com.example.thefootballshow.ui.upcomingMatchDetails.components.RecentFormCard
 import com.example.thefootballshow.utils.extension.loadAsyncImage
 import com.example.thefootballshow.utils.extension.showLog
 import com.example.thefootballshow.utils.extension.toLocalDateAndMonth
@@ -80,8 +75,6 @@ fun CenterAlignedTopAppBarExample(
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
     val matchUiState: UiState<MatchInfo> by viewModel.preMatchDetailsInfo.collectAsStateWithLifecycle()
 
-    val homeTeamUiState: UiState<List<MatchInfo>> by viewModel.homeTeamMatchData.collectAsStateWithLifecycle()
-    val awayTeamUiState: UiState<List<MatchInfo>> by viewModel.awayTeamMatchData.collectAsStateWithLifecycle()
     val leagueTableUiState: UiState<Standings> by viewModel.leagueTableInfo.collectAsStateWithLifecycle()
     val recentFormUiState: UiState<RecentFormInfo> by viewModel.recentFormInfo.collectAsStateWithLifecycle()
 
@@ -106,9 +99,13 @@ fun CenterAlignedTopAppBarExample(
                 .padding(start = 16.dp, end = 16.dp)
         ) {
             DisplayMatchDetails(matchUiState)
-
             Spacer(modifier = Modifier.height(16.dp))
+            MomentumTrackerCard(
+                values = listOf(0.28f, 0.40f, 0.52f, 0.24f, 0.36f, 0.58f, 0.76f, 0.82f, 0.66f, 0.20f),
+                modifier = Modifier.fillMaxWidth()
+            )
             RecentFormSection(recentFormUiState)
+            HeadToHeadSection(matchUiState)
             LeagueHeadLine(text = stringResource(R.string.league_table))
             LeagueTableSeasonSpinner()
             LeagueTable(leagueTableUiState)
@@ -130,140 +127,28 @@ fun RecentFormSection(recentFormUiState: UiState<RecentFormInfo>) {
 }
 
 @Composable
-fun RecentFormCard(recentForm: RecentFormInfo) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 8.dp),
-        shape = RoundedCornerShape(24.dp),
-        colors = CardDefaults.cardColors(MaterialTheme.colorScheme.surface.copy(alpha = 0.2f)),
-        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
-    ) {
-        Column(
-            modifier = Modifier
-                .background(MaterialTheme.colorScheme.surface)
-                .padding(24.dp),
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = stringResource(R.string.recent_form),
-                    style = TextStyle(
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold,
-                        letterSpacing = 1.sp,
-                        color = MaterialTheme.colorScheme.onPrimary
-                    )
-                )
-                Text(
-                    text = stringResource(R.string.last_5_matches),
-                    style = TextStyle(
-                        fontSize = 12.sp,
-                        color = AppTheme.customColors.drawPrimary,
-                        fontWeight = Medium
-                    )
-                )
-            }
-
-            Spacer(modifier = Modifier.height(24.dp))
-            TeamFormRow(teamName = recentForm.homeTeamTla, form = recentForm.homeTeamForm)
-            Spacer(modifier = Modifier.height(20.dp))
-            TeamFormRow(teamName = recentForm.awayTeamTla, form = recentForm.awayTeamForm)
-        }
-    }
-}
-
-@Composable
-fun TeamFormRow(teamName: String, form: List<String>) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(
-            text = teamName,
-            modifier = Modifier.width(60.dp),
-            style = TextStyle(
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold,
-                color = AppTheme.customColors.teamNameColor
+fun HeadToHeadSection(matchUiState: UiState<MatchInfo>) {
+    when (matchUiState) {
+        is UiState.Success -> {
+            val matchInfo = matchUiState.data
+            HeadToHeadCard(
+                homeTeamName = matchInfo.homeTeam?.tla ?: "",
+                awayTeamName = matchInfo.awayTeam?.tla ?: "",
+                homeWins = 12, // Dummy data for now
+                awayWins = 8,
+                draws = 4,
+                modifier = Modifier.padding(top = 16.dp)
             )
-        )
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.End
-        ) {
-            form.take(5).forEach { result ->
-                FormBox(result)
-                Spacer(modifier = Modifier.width(8.dp))
-            }
         }
-    }
-}
-
-@Composable
-fun FormBox(result: String) {
-    val backgroundColor = when (result.uppercase()) {
-        "W" -> MaterialTheme.colorScheme.primary
-        "L" -> MaterialTheme.colorScheme.onTertiary
-        else -> MaterialTheme.colorScheme.secondaryContainer
-    }
-    val textColor = if (result.uppercase() == "D") AppTheme.customColors.drawPrimary else if (result.uppercase() == "L") White else AppTheme.customColors.winPrimary
-
-    Box(
-        modifier = Modifier
-            .size(40.dp)
-            .background(backgroundColor, shape = RoundedCornerShape(12.dp)),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(
-            text = result.uppercase(),
-            style = TextStyle(
-                color = textColor,
-                fontWeight = FontWeight.ExtraBold
-            )
-        )
+        else -> {}
     }
 }
 
 
-@Preview(name = "Light Mode", showBackground = true)
-@Composable
-fun RecentFormCardPreviewLight() {
-    val sampleData = RecentFormInfo(
-        homeTeamTla = "ARS",
-        homeTeamForm = listOf("W", "L", "D", "W", "W"),
-        awayTeamTla = "CHE",
-        awayTeamForm = listOf("L", "W", "D", "L", "W")
-    )
 
-    TheFootballShowTheme(
-        darkTheme = false,
-        dynamicColor = false
-    ) {
-        RecentFormCard(sampleData)
-    }
-}
 
-@Preview(name = "Dark Mode", showBackground = true)
-@Composable
-fun RecentFormCardPreviewDark() {
-    val sampleData = RecentFormInfo(
-        homeTeamTla = "ARS",
-        homeTeamForm = listOf("W", "L", "D", "W", "W"),
-        awayTeamTla = "CHE",
-        awayTeamForm = listOf("L", "W", "D", "L", "W")
-    )
 
-    TheFootballShowTheme(
-        darkTheme = true,
-        dynamicColor = false
-    ) {
-        RecentFormCard(sampleData)
-    }
-}
+
 
 fun getMatchTitleText(matchUiState: UiState<MatchInfo>): String {
     return when (matchUiState) {
@@ -295,7 +180,7 @@ fun LeagueTable(
             val data = tableInfoUiState.data
             context.showLog(tag = "Standings", message = "${data.standings.size}")
             if (data.standings.isNotEmpty() && data.standings[0].table.isNotEmpty()) {
-                LazyColumn(modifier = Modifier.height(400.dp)) { // Added height to avoid infinite height issues in Column
+                LazyColumn(modifier = modifier.height(400.dp)) { // Added height to avoid infinite height issues in Column
                     stickyHeader {
                         TeamStandingInLeague(table = data.standings[0].table[0])
                     }
