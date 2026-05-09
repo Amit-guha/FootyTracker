@@ -21,6 +21,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
@@ -59,7 +60,6 @@ import com.example.thefootballshow.ui.upcomingMatchDetails.components.HeadToHead
 import com.example.thefootballshow.ui.upcomingMatchDetails.components.MomentumTrackerCard
 import com.example.thefootballshow.ui.upcomingMatchDetails.components.RecentFormCard
 import com.example.thefootballshow.utils.extension.loadAsyncImage
-import com.example.thefootballshow.utils.extension.showLog
 import com.example.thefootballshow.utils.extension.toLocalDateAndMonth
 import com.example.thefootballshow.utils.extension.toLocalTime
 
@@ -89,28 +89,61 @@ fun CenterAlignedTopAppBarExample(
         topBar = {
             TopAppBar(
                 title = getMatchTitleText(matchUiState),
-                scrollBehavior = scrollBehavior
-            ) {}
+                scrollBehavior = scrollBehavior,
+
+                ) {}
         }
     ) { innerPadding ->
-        Column(
+        LazyColumn(
             modifier = Modifier
+                .background(color = MaterialTheme.colorScheme.background)
                 .padding(innerPadding)
                 .padding(start = 16.dp, end = 16.dp)
         ) {
-            DisplayMatchDetails(matchUiState)
-            Spacer(modifier = Modifier.height(16.dp))
-            MomentumTrackerCard(
-                values = listOf(0.28f, 0.40f, 0.52f, 0.24f, 0.36f, 0.58f, 0.76f, 0.82f, 0.66f, 0.20f),
-                modifier = Modifier.fillMaxWidth()
-            )
-            RecentFormSection(recentFormUiState)
-            HeadToHeadSection(matchUiState)
-            LeagueHeadLine(text = stringResource(R.string.league_table))
-            LeagueTableSeasonSpinner()
-            LeagueTable(leagueTableUiState)
-        }
+            item {
+                DisplayMatchDetails(matchUiState)
+            }
+            item {
+                Spacer(modifier = Modifier.height(16.dp))
+                MomentumTrackerCard(
+                    values = listOf(
+                        0.28f,
+                        0.40f,
+                        0.52f,
+                        0.24f,
+                        0.36f,
+                        0.58f,
+                        0.76f,
+                        0.82f,
+                        0.66f,
+                        0.20f
+                    ),
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
 
+            item {
+                Spacer(modifier = Modifier.height(32.dp))
+                RecentFormSection(recentFormUiState)
+            }
+
+            item {
+                Spacer(modifier = Modifier.height(24.dp))
+                HeadToHeadSection(matchUiState)
+            }
+            item {
+                LeagueHeadLine(text = stringResource(R.string.league_table))
+            }
+
+           /* item {
+                LeagueTableSeasonSpinner()
+            }*/
+
+            item {
+                LeagueTable(leagueTableUiState)
+            }
+
+        }
     }
 }
 
@@ -134,20 +167,16 @@ fun HeadToHeadSection(matchUiState: UiState<MatchInfo>) {
             HeadToHeadCard(
                 homeTeamName = matchInfo.homeTeam?.tla ?: "",
                 awayTeamName = matchInfo.awayTeam?.tla ?: "",
-                homeWins = 12, // Dummy data for now
+                homeWins = 12,
                 awayWins = 8,
                 draws = 4,
                 modifier = Modifier.padding(top = 16.dp)
             )
         }
+
         else -> {}
     }
 }
-
-
-
-
-
 
 
 fun getMatchTitleText(matchUiState: UiState<MatchInfo>): String {
@@ -169,7 +198,6 @@ fun LeagueTable(
     tableInfoUiState: UiState<Standings>,
     modifier: Modifier = Modifier
 ) {
-    val context = LocalContext.current
     when (tableInfoUiState) {
         is UiState.Error -> {}
         UiState.Loading -> {
@@ -178,11 +206,18 @@ fun LeagueTable(
 
         is UiState.Success -> {
             val data = tableInfoUiState.data
-            context.showLog(tag = "Standings", message = "${data.standings.size}")
             if (data.standings.isNotEmpty() && data.standings[0].table.isNotEmpty()) {
-                LazyColumn(modifier = modifier.height(400.dp)) { // Added height to avoid infinite height issues in Column
+                LazyColumn(modifier = modifier.height(400.dp)) {
                     stickyHeader {
-                        TeamStandingInLeague(table = data.standings[0].table[0])
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(MaterialTheme.colorScheme.onBackground)
+                        ) {
+                            TeamStandingInLeague(
+                                table = data.standings[0].table[0]
+                            )
+                        }
                     }
                     itemsIndexed(data.standings[0].table) { index, item ->
                         if (index != 0) {
@@ -209,7 +244,8 @@ fun LeagueHeadLine(
         text = text,
         style = TextStyle(
             textAlign = TextAlign.Center,
-            fontSize = 18.sp
+            fontSize = 18.sp,
+            color = MaterialTheme.colorScheme.onPrimary
         )
     )
 }
@@ -233,7 +269,7 @@ fun LeagueTableSeasonSpinner() {
                 expanded = !expanded
             }, verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(text = selectedItem)
+        Text(text = selectedItem, color = MaterialTheme.colorScheme.onPrimary)
         Image(
             painter = painterResource(R.drawable.arrow_drop_down),
             colorFilter = ColorFilter.tint(color = Color.Black),
@@ -247,7 +283,7 @@ fun LeagueTableSeasonSpinner() {
         ) {
             listOfItems.forEach {
                 DropdownMenuItem(
-                    text = { Text(text = it) },
+                    text = { Text(text = it, color = MaterialTheme.colorScheme.onPrimary) },
                     onClick = {
                         expanded = false
                         selectedItem = it
@@ -286,11 +322,15 @@ fun MatchStartTimeInfo(modifier: Modifier = Modifier, data: MatchInfo) {
             modifier = modifier
         ) {
             Text(
+                style = TextStyle(
+                    color = MaterialTheme.colorScheme.onPrimary
+                ),
                 text = data.utcDate.takeIf { it?.isNotEmpty() == true }?.toLocalDateAndMonth() ?: ""
             )
             Text(
                 text = data.utcDate.takeIf { it?.isNotEmpty() == true }?.toLocalTime() ?: "",
                 style = TextStyle(
+                    color = MaterialTheme.colorScheme.onPrimary,
                     fontSize = 20.sp,
                     fontWeight = FontWeight.SemiBold
                 )
@@ -392,6 +432,7 @@ fun HomeTeamVsAwayTeamWinningStatistics(
             modifier = modifier.padding(start = 10.dp),
             text = nameOfTheTeam,
             style = TextStyle(
+                color = MaterialTheme.colorScheme.onPrimary,
                 textAlign = TextAlign.Start,
                 fontSize = 15.sp,
                 fontWeight = FontWeight.SemiBold
@@ -439,7 +480,8 @@ fun LeagueHeader(
                 style = TextStyle(
                     fontSize = 30.sp,
                     textAlign = TextAlign.Center,
-                    fontWeight = Medium
+                    fontWeight = Medium,
+                    color = MaterialTheme.colorScheme.onPrimary
                 )
             )
 

@@ -12,7 +12,8 @@ data class AppCustomColors(
     val teamNameColor : Color,
     val negativeMomentumColor: Color,
     val drawProgressBar : Color,
-    val awayTeamProgressBar : Color
+    val awayTeamProgressBar : Color,
+    val appBarColor : Color
 )
 
 
@@ -22,7 +23,8 @@ val CustomLightAppColorScheme = AppCustomColors(
     teamNameColor = OuterSpace,
     negativeMomentumColor = coralOrange60,
     drawProgressBar = GrayGreen,
-    awayTeamProgressBar = SoftGrayGreen
+    awayTeamProgressBar = SoftGrayGreen,
+    appBarColor = DarkGreen
 )
 
 val CustomDarkAppColorScheme = AppCustomColors(
@@ -30,8 +32,9 @@ val CustomDarkAppColorScheme = AppCustomColors(
     drawPrimary = Silver,
     teamNameColor = White50,
     negativeMomentumColor = Coral,
-    drawProgressBar = Silver,
-    awayTeamProgressBar = White20
+    drawProgressBar = RaisinBlack,
+    awayTeamProgressBar = White20,
+    appBarColor = MintGreen
 )
 // ─────────────────────────────────────────────
 //  4.  CompositionLocal

@@ -1,5 +1,6 @@
 package com.example.thefootballshow.ui.upcomingMatchDetails.components
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -57,7 +58,11 @@ fun MomentumTrackerCard(
             modifier = modifier,
             shape = RoundedCornerShape(24.dp),
             colors = CardDefaults.cardColors(MaterialTheme.colorScheme.surface.copy(alpha = 0.2f)),
-            elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+            elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+            border = BorderStroke(
+                1.dp,
+                MaterialTheme.colorScheme.outline.copy(alpha = 0.2f)
+            )
         ) {
             Column(
                 modifier = Modifier

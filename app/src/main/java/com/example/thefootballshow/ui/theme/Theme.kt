@@ -19,6 +19,7 @@ private val DarkColorScheme = darkColorScheme(
     onTertiary = Coral,
     surface = ChineseBlack,
     secondaryContainer = RaisinBlack,
+    background = DarkGray,
     onBackground = NearBlack
 )
 
@@ -29,8 +30,8 @@ private val LightColorScheme = lightColorScheme(
     onTertiary = FireEngineRed,
     surface = White,
     secondaryContainer = LightGray,
+    background = White80,
     onBackground = White
-
 )
 
 

@@ -1,6 +1,5 @@
 package com.example.thefootballshow.ui.leagueTable
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -14,55 +13,45 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.thefootballshow.R
 import com.example.thefootballshow.data.model.Table
+import com.example.thefootballshow.data.model.Team
+import com.example.thefootballshow.ui.theme.AppTheme
+import com.example.thefootballshow.ui.theme.TheFootballShowTheme
 import com.example.thefootballshow.utils.extension.loadAsyncImage
 
 @Composable
 fun TeamStandingInLeague(table: Table, modifier: Modifier = Modifier) {
-    val backgroundColor = when (table.position) {
-        -1 -> colorResource(R.color.white)
-        else -> colorResource(R.color.white)
-
-        //Dark
-//        -1 -> colorResource(R.color.charleston_green)
-//        else -> colorResource(R.color.eerie_black)
-    }
 
     Row(
         modifier = Modifier
-            .background(backgroundColor)
             .padding(top = 10.dp, bottom = 10.dp, start = 10.dp, end = 10.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        val positionText = if (table.position == -1) {
-            ""
-        } else {
+        val positionText = if (table.position == -1) { "" } else {
             table.position.toString()
         }
         Text(
-            positionText,
+            text = positionText,
             modifier = modifier.weight(0.1f),
             overflow = TextOverflow.Ellipsis,
             maxLines = 1,
             style = TextStyle(
-                fontSize = 18.sp,
-                color = Color.Black,
-              //  color = Color.White,
+                color = AppTheme.customColors.drawPrimary,
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center
             )
         )
 
-        table.team.crest.takeIf { it?.isNotEmpty() == true}?.let {
+        table.team.crest.takeIf { it?.isNotEmpty() == true }?.let {
             modifier
                 .width(25.dp)
                 .height(25.dp)
@@ -74,7 +63,7 @@ fun TeamStandingInLeague(table: Table, modifier: Modifier = Modifier) {
                     context = LocalContext.current,
                     contentDescription = "League Logo"
                 )()
-        } ?: kotlin.run {
+        } ?: run {
             Box(
                 modifier = modifier
                     .width(25.dp)
@@ -85,7 +74,7 @@ fun TeamStandingInLeague(table: Table, modifier: Modifier = Modifier) {
             ) {}
         }
 
-        val teamAbbreviation = table.team.tla?:""
+        val teamAbbreviation = table.team.tla ?: ""
         Text(
             teamAbbreviation,
             modifier = modifier
@@ -93,9 +82,9 @@ fun TeamStandingInLeague(table: Table, modifier: Modifier = Modifier) {
             overflow = TextOverflow.Ellipsis,
             maxLines = 1,
             style = TextStyle(
-                fontSize = 18.sp,
-                color = Color.Black,
-               // color = Color.White,
+                color = AppTheme.customColors.drawPrimary,
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center
             )
         )
@@ -112,9 +101,9 @@ fun TeamStandingInLeague(table: Table, modifier: Modifier = Modifier) {
             modifier = modifier
                 .weight(0.1f),
             style = TextStyle(
-                fontSize = 18.sp,
-                color = Color.Black,
-               // color = Color.White,
+                color = AppTheme.customColors.drawPrimary,
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center
             )
         )
@@ -131,9 +120,9 @@ fun TeamStandingInLeague(table: Table, modifier: Modifier = Modifier) {
             modifier = modifier
                 .weight(0.1f),
             style = TextStyle(
-                fontSize = 18.sp,
-                color = Color.Black,
-              //  color = Color.White,
+                color = AppTheme.customColors.drawPrimary,
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center
             )
         )
@@ -150,9 +139,9 @@ fun TeamStandingInLeague(table: Table, modifier: Modifier = Modifier) {
             modifier = modifier
                 .weight(0.1f),
             style = TextStyle(
-                fontSize = 18.sp,
-                color = Color.Black,
-              //  color = Color.White,
+                color = AppTheme.customColors.drawPrimary,
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center
             )
         )
@@ -169,9 +158,9 @@ fun TeamStandingInLeague(table: Table, modifier: Modifier = Modifier) {
             modifier = modifier
                 .weight(0.1f),
             style = TextStyle(
-                fontSize = 18.sp,
-                color = Color.Black,
-               // color = Color.White,
+                color = AppTheme.customColors.drawPrimary,
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center
             )
         )
@@ -227,9 +216,9 @@ fun TeamStandingInLeague(table: Table, modifier: Modifier = Modifier) {
             modifier = modifier
                 .weight(0.1f),
             style = TextStyle(
-                fontSize = 18.sp,
-                color = Color.Black,
-              //  color = Color.White,
+                color = AppTheme.customColors.drawPrimary,
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center
             )
         )
@@ -247,9 +236,9 @@ fun TeamStandingInLeague(table: Table, modifier: Modifier = Modifier) {
             modifier = modifier
                 .weight(0.1f),
             style = TextStyle(
-                fontSize = 18.sp,
-                color = Color.Black,
-               // color = Color.White,
+                color = AppTheme.customColors.drawPrimary,
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center
             )
         )
@@ -273,8 +262,31 @@ fun TeamStandingInLeague(table: Table, modifier: Modifier = Modifier) {
 }
 
 
-@Composable
 @Preview(showBackground = true)
-fun ShowTablePreview(modifier: Modifier = Modifier) {
-    //Table(modifier = Modifier.fillMaxWidth())
+@Composable
+fun TeamStandingInLeaguePreview() {
+    val sampleTable = Table(
+        position = 1,
+        playedGames = 38,
+        won = 28,
+        draw = 6,
+        lost = 4,
+        goalDifference = 45,
+        points = 90,
+        team = Team(
+            tla = "MCI",
+            crest = "",
+        ),
+        form = "",
+        goalsAgainst = 20,
+        goalsFor = 20
+    )
+
+    TheFootballShowTheme(
+        darkTheme = false,
+        dynamicColor = false
+    ) {
+        TeamStandingInLeague(table = sampleTable)
+    }
+
 }

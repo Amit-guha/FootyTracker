@@ -1,4 +1,5 @@
 package com.example.thefootballshow.ui.upcomingMatchDetails.components
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -22,6 +23,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.font.FontWeight.Companion.Medium
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -40,7 +42,11 @@ fun RecentFormCard(recentForm: RecentFormInfo) {
             .padding(vertical = 8.dp),
         shape = RoundedCornerShape(24.dp),
         colors = CardDefaults.cardColors(MaterialTheme.colorScheme.surface.copy(alpha = 0.2f)),
-        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+        border = BorderStroke(
+            width = 1.dp,
+            color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f)
+        )
     ) {
         Column(
             modifier = Modifier
@@ -55,7 +61,7 @@ fun RecentFormCard(recentForm: RecentFormInfo) {
                 Text(
                     text = stringResource(R.string.recent_form),
                     style = TextStyle(
-                        fontSize = 18.sp,
+                        fontSize = 14.sp,
                         fontWeight = FontWeight.Bold,
                         letterSpacing = 1.sp,
                         color = MaterialTheme.colorScheme.onPrimary
@@ -64,7 +70,7 @@ fun RecentFormCard(recentForm: RecentFormInfo) {
                 Text(
                     text = stringResource(R.string.last_5_matches),
                     style = TextStyle(
-                        fontSize = 12.sp,
+                        fontSize = 10.sp,
                         color = AppTheme.customColors.drawPrimary,
                         fontWeight = Medium
                     )
@@ -88,8 +94,10 @@ fun TeamRecentForm(teamName: String, form: List<String>) {
         Text(
             text = teamName,
             modifier = Modifier.width(60.dp),
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
             style = TextStyle(
-                fontSize = 16.sp,
+                fontSize = 12.sp,
                 fontWeight = FontWeight.Bold,
                 color = AppTheme.customColors.teamNameColor
             )
@@ -117,15 +125,16 @@ fun FormBox(result: String) {
 
     Box(
         modifier = Modifier
-            .size(40.dp)
-            .background(backgroundColor, shape = RoundedCornerShape(12.dp)),
+            .size(30.dp)
+            .background(backgroundColor, shape = RoundedCornerShape(8.dp)),
         contentAlignment = Alignment.Center
     ) {
         Text(
             text = result.uppercase(),
             style = TextStyle(
+                fontSize = 12.sp,
                 color = textColor,
-                fontWeight = FontWeight.ExtraBold
+                fontWeight = FontWeight.Bold
             )
         )
     }

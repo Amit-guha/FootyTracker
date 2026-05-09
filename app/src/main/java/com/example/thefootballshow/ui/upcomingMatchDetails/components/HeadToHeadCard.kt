@@ -1,5 +1,6 @@
 package com.example.thefootballshow.ui.upcomingMatchDetails.components
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -46,7 +47,11 @@ fun HeadToHeadCard(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(24.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.onBackground),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+        border = BorderStroke(
+            width = 1.dp,
+            color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f)
+        )
     ) {
         Column(
             modifier = Modifier
@@ -60,14 +65,14 @@ fun HeadToHeadCard(
             ) {
                 Text(
                     text = stringResource(R.string.head_to_head),
-                    fontSize = 20.sp,
+                    fontSize = 14.sp,
                     fontWeight = FontWeight.Bold,
                     letterSpacing = 1.sp,
                     color = MaterialTheme.colorScheme.onPrimary
                 )
                 Text(
                     text = stringResource(R.string.matches, totalMatches),
-                    fontSize = 14.sp,
+                    fontSize = 10.sp,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.primary
                 )
@@ -117,7 +122,7 @@ private fun H2HStatRow(
         ) {
             Text(
                 text = label,
-                fontSize = 16.sp,
+                fontSize = 12.sp,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onPrimary
             )
@@ -152,6 +157,26 @@ private fun H2HStatRow(
 fun HeadToHeadCardPreview() {
     TheFootballShowTheme(
         darkTheme = false,
+        dynamicColor = false
+    ) {
+        Box(modifier = Modifier.padding(16.dp)) {
+            HeadToHeadCard(
+                homeTeamName = "MUN",
+                awayTeamName = "LIV",
+                homeWins = 12,
+                awayWins = 8,
+                draws = 4
+            )
+        }
+    }
+
+}
+
+@Preview
+@Composable
+fun HeadToHeadCardDarkPreview() {
+    TheFootballShowTheme(
+        darkTheme = true,
         dynamicColor = false
     ) {
         Box(modifier = Modifier.padding(16.dp)) {
